@@ -7,7 +7,7 @@ user = input("Enter User name: ")
 project = input("Enter Project name: ")
 urlname= 'https://api.github.com/repos/'+user+'/'+project+'/releases'
 print(urlname)
-workbook = xlsxwriter.Workbook('exports/'+user+'-'+project+'.xlsx')
+workbook = xlsxwriter.Workbook(user+'-'+project+'.xlsx')
 worksheet = workbook.add_worksheet(project)
 worksheet_graph = workbook.add_worksheet('Status Chart')
 bold = workbook.add_format({'bold': True})
@@ -32,7 +32,8 @@ else:
 		if 'tag_name' in item:
 			worksheet.write(row, col, item['tag_name'])
 			if item['assets']:
-				worksheet.write(row, col + 1, item['assets'][0]['download_count'])
+				for idx,asset in enumerate(item['assets']):
+					worksheet.write(row, col + 1 +idx, asset['download_count'])
 			row += 1
 			continue
 	chart.add_series({
