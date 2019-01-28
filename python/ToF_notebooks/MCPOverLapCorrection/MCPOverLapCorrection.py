@@ -1,4 +1,5 @@
-# this function implements the MCP overlapcorrection as described in: A. S. Tremsin, J. V. Vallerga, J. B. McPhate, and O. H. W. Siegmund, “Optimization of Timepix count rate capabilities for the applications with a periodic input signal,” J. Instrum., vol. 9, no. 5, 2014. https://doi.org/10.1088/1748-0221/9/05/C05026
+# this function implements the MCP overlapcorrection as described in: A. S. Tremsin, J. V. Vallerga, J. B. McPhate, and O. H.  # W. Siegmund, “Optimization of Timepix count rate capabilities for the applications with a periodic input signal,” J. # Instrum., vol. 9, no. 5, 2014. https://doi.org/10.1088/1748-0221/9/05/C05026
+
 
 import glob,sys,os
 import pandas as pd
@@ -24,7 +25,7 @@ def OverLapCorrection(folder_input, folder_output, filename_output, num_windows)
     if not os.path.exists(folder_output):
         os.makedirs(folder_output)
 
-    #     display(sorted_TXT[0]) #shutter counts
+#     display(sorted_TXT[0]) #shutter counts
 #     display(sorted_TXT[1]) # shutter times
 #     display(sorted_TXT[2]) #spectra
 #     display(sorted_TXT[3]) # status
