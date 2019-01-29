@@ -23,10 +23,10 @@ def term5(t,t0,alpha,sigma):
     return erfc(-((t-t0)/(sigma * math.sqrt(2))) + sigma/alpha)
 
 #TO DO: add the option to fitt either shape (?) or not
-def BraggEdgeShape(t,t0,alpha,sigma,a1,a2,a5,a6):
+def BraggEdgeShape2(t,t0,alpha,sigma,a1,a2,a5,a6):
     return a1 + term0(t,a2,a6) + term1(t,a2,a5,a6) * (1-(term3(t,t0,sigma) - term4(t,t0,alpha,sigma)* term5(t,t0,alpha,sigma)))
 
-def BraggEdgeShape2(t,t0,alpha,sigma,a1,a2,a5,a6):
+def BraggEdgeShape(t,t0,alpha,sigma,a1,a2,a5,a6):
     return a1 + term0(t,a2,a6) + term1(t,a2,a5,a6) * ((term3(t,t0,sigma) - term4(t,t0,alpha,sigma)* term5(t,t0,alpha,sigma)))
 
 #I am not sure that all these steps are necessary, most likely one can also only define one and decide how many to fit: TODO understand this 
@@ -48,11 +48,11 @@ def AdvancedBraggEdegFittingFifthStep(t,t0,sigma,alpha): #this is just the same 
 def AdvancedBraggEdegFittingAll(t,t0,sigma,alpha,a1,a2,a5,a6):
     return a1 + term0(t,a2,a6) + term1(t,a2,a5,a6) * (1-(term3(t,t0,sigma) - term4(t,t0,alpha,sigma)* term5(t,t0,alpha,sigma)))
 
-def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha):
+def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha, bool_print):
     
     #get the part of the spectrum that I want to fit
-#     mybragg = -1*np.log(myspectrum[myrange[0]:myrange[1]]/np.max(myspectrum[myrange[0]:myrange[1]]))
-#     mybragg = mybragg/np.max(mybragg)# iniziamo senza rumore aggiunto
+#    mybragg = -1*np.log(myspectrum[myrange[0]:myrange[1]]/np.max(myspectrum[myrange[0]:myrange[1]]))
+#    mybragg = mybragg/np.max(mybragg)# iniziamo senza rumore aggiunto
     mybragg= myspectrum[myrange[0]:myrange[1]]
     plt.figure
     plt.plot(mybragg)
@@ -69,13 +69,13 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha)
     [slope_before, interception_before] = np.polyfit(t_before, bragg_before, 1)
     [slope_after, interception_after] = np.polyfit(t_after, bragg_after, 1)
     
-    plt.figure
-    plt.plot(t_before,bragg_before,'.k')
-    plt.plot(t_after,bragg_after,'.k')
-    plt.plot(t,mybragg)
+#    plt.figure
+#    plt.plot(t_before,bragg_before,'.k')
+#    plt.plot(t_after,bragg_after,'.k')
+#    plt.plot(t,mybragg)
 
-    plt.plot(t,interception_before+slope_before*t)
-    plt.plot(t,interception_after+slope_after*t)
+#    plt.plot(t,interception_before+slope_before*t)
+#   plt.plot(t,interception_after+slope_after*t)
     
     #first guess of paramters
     t0_f=est_pos
@@ -107,13 +107,13 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha)
     
     
     result1 = gmodel.fit(mybragg, params, t=t, method=method, nan_policy='propagate')
-    print(result1.fit_report())
+#    print(result1.fit_report())
     
-    plt.figure
-    plt.plot(t, mybragg, 'b-')
-    plt.plot(t, result1.init_fit, 'k--')
-    plt.plot(t, result1.best_fit, 'r-')
-    plt.show()
+#    plt.figure
+#    plt.plot(t, mybragg, 'b-')
+#    plt.plot(t, result1.init_fit, 'k--')
+#    plt.plot(t, result1.best_fit, 'r-')
+#    plt.show()
     
     a1_f=result1.best_values.get('a1')
     a6_f=result1.best_values.get('a6')
@@ -127,12 +127,12 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha)
         
 
     result2 = gmodel.fit(mybragg, params, t=t, method=method, nan_policy='propagate')
-    print(result2.fit_report())
-    plt.figure
-    plt.plot(t, mybragg, 'b-')
-    plt.plot(t, result2.init_fit, 'k--')
-    plt.plot(t, result2.best_fit, 'r-')
-    plt.show()
+#    print(result2.fit_report())
+#    plt.figure
+#    plt.plot(t, mybragg, 'b-')
+#    plt.plot(t, result2.init_fit, 'k--')
+#    plt.plot(t, result2.best_fit, 'r-')
+#    plt.show()
 
     a2_f = result2.best_values.get('a2')
     a5_f = result2.best_values.get('a5')
@@ -147,12 +147,12 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha)
 
 
     result3=gmodel.fit(mybragg, params, t=t, method=method, nan_policy='propagate')
-    print(result3.fit_report())
-    plt.figure
-    plt.plot(t, mybragg, 'b-')
-    plt.plot(t, result3.init_fit, 'k--')
-    plt.plot(t, result3.best_fit, 'r-')
-    plt.show()
+#    print(result3.fit_report())
+#    plt.figure
+#    plt.plot(t, mybragg, 'b-')
+#    plt.plot(t, result3.init_fit, 'k--')
+#    plt.plot(t, result3.best_fit, 'r-')
+#    plt.show()
     
     t0_f=result3.best_values.get('t0')
 #     sigma_f=result3.best_values.get('sigma')
@@ -169,12 +169,12 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha)
                        
 
 
-    print(result4.fit_report())
-    plt.figure
-    plt.plot(t, mybragg, 'b-')
-    plt.plot(t, result4.init_fit, 'k--')
-    plt.plot(t, result4.best_fit, 'r-')
-    plt.show()
+#    print(result4.fit_report())
+#    plt.figure
+#    plt.plot(t, mybragg, 'b-')
+#    plt.plot(t, result4.init_fit, 'k--')
+#    plt.plot(t, result4.best_fit, 'r-')
+#    plt.show()
     
     sigma_f=result4.best_values.get('sigma')
     alpha_f=result4.best_values.get('alpha')
@@ -188,12 +188,12 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha)
     
     
     result5 = gmodel.fit(mybragg, params, t=t, nan_policy='propagate', method=method)
-    print(result5.fit_report())
-    plt.figure
-    plt.plot(t, mybragg, 'b-')
-    plt.plot(t, result5.init_fit, 'k--')
-    plt.plot(t, result5.best_fit, 'r-')
-    plt.show()
+#    print(result5.fit_report())
+#    plt.figure
+#    plt.plot(t, mybragg, 'b-')
+#    plt.plot(t, result5.init_fit, 'k--')
+#    plt.plot(t, result5.best_fit, 'r-')
+#    plt.show()
     
     a1_f =result5.best_values.get('a1')
     a2_f = result5.best_values.get('a2')
@@ -216,26 +216,33 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha)
 
 #     result6=gmodel6.fit(mybragg,t=t, t0=t0_f,sigma=sigma_f, alpha=alpha_f, a1=a1_f, a2=a2_f, a5=a5_f, a6=a6_f, nan_policy='propagate', method=method)
     
-    print(result6.fit_report())
-    plt.figure
-    plt.plot(t, mybragg, 'b-')
-    plt.plot(t, result6.init_fit, 'k--')
-    plt.plot(t, result6.best_fit, 'r-')
-    plt.show()
+#    print(result6.fit_report())
+#    plt.figure
+#    plt.plot(t, mybragg, 'b-')
+#    plt.plot(t, result6.init_fit, 'k--')
+#    plt.plot(t, result6.best_fit, 'r-')
+#    plt.show()
 
     t0_f=result6.best_values.get('t0')
     sigma_f=result6.best_values.get('sigma')
     alpha_f=result6.best_values.get('alpha')
 
     params = gmodel.make_params(t0=t0_f,sigma=sigma_f, alpha=alpha_f, a1=a1_f, a2=a2_f, a5=a5_f, a6=a6_f)
+
     result7 = gmodel.fit(mybragg, params, t=t, nan_policy='propagate', method=method)
     
     print(result7.fit_report())
     plt.figure
     plt.plot(t, mybragg, 'b-')
     plt.plot(t, result7.init_fit, 'k--')
-    plt.plot(t, result7.best_fit, 'r-')
-    plt.plot(t[t0_f], mybragg[t0_f],'ok')
+    plt.plot(t, result7.best_fit, 'r-', linewidth='1.2')
+    plt.plot(t, result1.best_fit, '--')
+    plt.plot(t, result2.best_fit, '--')
+    plt.plot(t, result3.best_fit, '--')
+    plt.plot(t, result4.best_fit, '--')
+    plt.plot(t, result5.best_fit, '--')
+    plt.plot(t, result6.best_fit, '--')
+    plt.plot(t[t0_f], result7.best_fit[t0_f],'ok')
     plt.show()
     
     t0_f=result7.best_values.get('t0')
@@ -245,4 +252,16 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha)
     a2_f = result7.best_values.get('a2')
     a5_f = result7.best_values.get('a5')
     a6_f = result7.best_values.get('a6')
+    
+    if (bool_print):
+        print(result1.fit_report())
+        print(result2.fit_report())
+        print(result3.fit_report())
+        print(result4.fit_report())
+        print(result5.fit_report())
+        print(result6.fit_report())
+        
+    
+    return {'t0':t0_f, 'sigma':sigma_f, 'alpha':alpha_f, 'a1':a1_f, 'a2':a2_f,'a5':a5_f, 'a6':a6_f}
+
     
