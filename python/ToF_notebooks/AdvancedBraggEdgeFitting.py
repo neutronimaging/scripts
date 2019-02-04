@@ -232,6 +232,16 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha,
     result7 = gmodel.fit(mybragg, params, t=t, nan_policy='propagate', method=method)
     
     print(result7.fit_report())
+
+    
+    t0_f=result7.best_values.get('t0')
+    sigma_f=result7.best_values.get('sigma')
+    alpha_f=result7.best_values.get('alpha')
+    a1_f =result7.best_values.get('a1')
+    a2_f = result7.best_values.get('a2')
+    a5_f = result7.best_values.get('a5')
+    a6_f = result7.best_values.get('a6')
+    
     plt.figure
     plt.plot(t, mybragg, 'b-')
     plt.plot(t, result7.init_fit, 'k--')
@@ -245,14 +255,6 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha,
     plt.plot(t[t0_f], result7.best_fit[t0_f],'ok')
     plt.show()
     
-    t0_f=result7.best_values.get('t0')
-    sigma_f=result7.best_values.get('sigma')
-    alpha_f=result7.best_values.get('alpha')
-    a1_f =result7.best_values.get('a1')
-    a2_f = result7.best_values.get('a2')
-    a5_f = result7.best_values.get('a5')
-    a6_f = result7.best_values.get('a6')
-    
     if (bool_print):
         print(result1.fit_report())
         print(result2.fit_report())
@@ -262,6 +264,6 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha,
         print(result6.fit_report())
         
     
-    return {'t0':t0_f, 'sigma':sigma_f, 'alpha':alpha_f, 'a1':a1_f, 'a2':a2_f,'a5':a5_f, 'a6':a6_f}
+    return {'t0':t0_f, 'sigma':sigma_f, 'alpha':alpha_f, 'a1':a1_f, 'a2':a2_f,'a5':a5_f, 'a6':a6_f, 'final_result':result7}
 
     
