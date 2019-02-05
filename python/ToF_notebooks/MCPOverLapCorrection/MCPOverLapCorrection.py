@@ -1,4 +1,4 @@
-# this function implements the MCP overlapcorrection as described in: A. S. Tremsin, J. V. Vallerga, J. B. McPhate, and O. H.  # W. Siegmund, “Optimization of Timepix count rate capabilities for the applications with a periodic input signal,” J. # Instrum., vol. 9, no. 5, 2014. https://doi.org/10.1088/1748-0221/9/05/C05026
+# this function implements the MCP overlapcorrection as described in: A. S. Tremsin, J. V. Vallerga, J. B. McPhate, and O. H.  # W. Siegmund, Optimization of Timepix count rate capabilities for the applications with a periodic input signal, J. Instrum., vol. 9, no. 5, 2014. https://doi.org/10.1088/1748-0221/9/05/C05026
 
 
 import glob,sys,os
@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from IPython.display import display, HTML
 import numpy as np
 from astropy.io import fits
+import shutil
 
 def interAssig(value,intervalDict,df_shutterCount, tolerance): 
     #auxiliary function for OverLapCorrection
@@ -72,6 +73,8 @@ def OverLapCorrection(folder_input, folder_output, filename_output, num_windows)
     dfName['ToF'] = df['Time']
     dfName['ShutterWindow']= dfName['ToF'].apply(lambda i:interAssig(i,interval,df_shutterCount, tolerance))
     indexname=0
+    
+    
 
     
 
@@ -105,7 +108,14 @@ def OverLapCorrection(folder_input, folder_output, filename_output, num_windows)
                 fits.writeto(folder_output+filename+'.fits',newim)
 
 
+
+# finally I copy the txt files because they can be usefull for the future
+    for txt in sorted_TXT:
+        filename = txt
+        destname = folder_output
+        shutil.copy(filename, destname)  
         
+
         ## OLD IMPLEMENTATION: This is now correct except for the convertion to int which does not work at the moment
 #     for i in dfName.groupby('ShutterWindow'):
 #         display(i[0])
