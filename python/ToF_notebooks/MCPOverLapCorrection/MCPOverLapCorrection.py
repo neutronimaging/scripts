@@ -77,6 +77,7 @@ def OverLapCorrection(folder_input, folder_output, filename_output, num_windows)
     
 
     
+    i_wb =0 # index used to initialize white beam image
 
     for names in dfName.groupby('ShutterWindow'):
 #        print(type(names), len(names))
@@ -91,8 +92,12 @@ def OverLapCorrection(folder_input, folder_output, filename_output, num_windows)
                 
                 if i==0:
                     sumim=np.zeros(np.shape(array)) # create a blank sum img for each new window
-                     
+                                    
                 sumim+=array # pixel wise sum of loaded imgs
+                
+                if i_wb==0:
+                    white_beam=np.zeros(np.shape(array))
+                    i_wb = 1
                 
                 if i==0:
                     P=0
@@ -102,12 +107,14 @@ def OverLapCorrection(folder_input, folder_output, filename_output, num_windows)
 
                 newim = array/(1-P) # image correction
                 newim= newim.astype(float) # data casting, somehow the convertion to int does not work properly, I have then an error of wrong pixel depth
+                white_beam += newim
                 filename=filename_output+str(indexname).zfill(5)
     #            display(filename)
                 indexname+=1
                 fits.writeto(folder_output+filename+'.fits',newim)
 
-
+#    print(folder_output +  filename_output + 'SummedImg.fits')
+    fits.writeto(folder_output +  filename_output + 'SummedImg.fits', white_beam)
 
 # finally I copy the txt files because they can be usefull for the future
     for txt in sorted_TXT:
