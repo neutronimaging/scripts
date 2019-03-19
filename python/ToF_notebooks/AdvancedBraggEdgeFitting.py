@@ -252,7 +252,7 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha,
     plt.plot(t, result4.best_fit, '--')
     plt.plot(t, result5.best_fit, '--')
     plt.plot(t, result6.best_fit, '--')
-    plt.plot(t[t0_f], result7.best_fit[t0_f],'ok')
+    plt.plot(t[int(t0_f)], result7.best_fit[int(t0_f)],'ok')
     plt.show()
     
     if (bool_print):
