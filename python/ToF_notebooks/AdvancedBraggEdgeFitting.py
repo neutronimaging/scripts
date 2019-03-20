@@ -6,6 +6,7 @@ from scipy.optimize import curve_fit
 from scipy.special import erfc
 from lmfit import Model
 from numpy import loadtxt
+from scipy.signal import argrelextrema
 
 def term0(t,a2,a6):
     return  a2 * (t - a6)
@@ -29,26 +30,43 @@ def BraggEdgeShape2(t,t0,alpha,sigma,a1,a2,a5,a6):
 def BraggEdgeShape(t,t0,alpha,sigma,a1,a2,a5,a6):
     return a1 + term0(t,a2,a6) + term1(t,a2,a5,a6) * ((term3(t,t0,sigma) - term4(t,t0,alpha,sigma)* term5(t,t0,alpha,sigma)))
 
-#I am not sure that all these steps are necessary, most likely one can also only define one and decide how many to fit: TODO understand this 
-def AdvancedBraggEdgeFittingFirstStep(t,a1,a6):
-    return a1 + term0(t,a2_f,a6) + term1(t,a2_f,a5_f,a6) * (1-(term3(t,t0_f,sigma_f) - term4(t,t0_f,alpha_f,sigma_f)* term5(t,t0_f,alpha_f,sigma_f)))
+def running_mean(x, N):
+    cumsum = np.cumsum(np.insert(x, 0, 0)) 
+    return (cumsum[N:] - cumsum[:-N]) / float(N)
 
-def AdvancedBraggEdgeFittingSecondStep(t,a2,a5):
-    return a1_f + term0(t,a2,a6_f) + term1(t,a2,a5,a6_f) * (1-(term3(t,t0_f,sigma_f) - term4(t,t0_f,alpha_f,sigma_f)* term5(t,t0_f,alpha_f,sigma_f)))
+def ModelFirstPart(t,a1,a2,a6):
+    return a1 + term0(t,a2,a6)
 
-def AdvancedBraggEdegFittingThirdStep(t,t0,sigma,alpha):
-    return a1_f + term0(t,a2_f,a6_f) + term1(t,a2_f,a5_f,a6_f) * (1-(term3(t,t0,sigma) - term4(t,t0,alpha,sigma)* term5(t,t0,alpha,sigma)))
+def ModelSecondPart(t,a2,a5,a6):
+    return term1(t,a2,a5,a6)
 
-def AdvancedBraggEdegFittingFourthStep(t,a1,a2,a5,a6):
-    return a1 + term0(t,a2,a6) + term1(t,a2,a5,a6) * (1-(term3(t,t0_f,sigma_f) - term4(t,t0_f,alpha_f,sigma_f)* term5(t,t0_f,alpha_f,sigma_f)))
+def ModelThirdPart(t, t0, sigma, alpha):
+    return (1-(term3(t,t0,sigma) - term4(t,t0,alpha,sigma)* term5(t,t0,alpha,sigma)))
 
-def AdvancedBraggEdegFittingFifthStep(t,t0,sigma,alpha): #this is just the same as the third
-    return a1_f + term0(t,a2_f,a6_f) + term1(t,a2_f,a5_f,a6_f) * (1-(term3(t,t0,sigma) - term4(t,t0,alpha,sigma)* term5(t,t0,alpha,sigma)))
+# final formulation of the two lines: (to derive also explicitally I would say
+# line1: ModelFirstPart-ModelSecondPart
+# line2: ModelFirstPart+ModelSecondPart
+
+# #I am not sure that all these steps are necessary, most likely one can also only define one and decide how many to fit: TODO understand this 
+# def AdvancedBraggEdgeFittingFirstStep(t,a1,a6):
+#     return a1 + term0(t,a2_f,a6) + term1(t,a2_f,a5_f,a6) * (1-(term3(t,t0_f,sigma_f) - term4(t,t0_f,alpha_f,sigma_f)* term5(t,t0_f,alpha_f,sigma_f)))
+
+# def AdvancedBraggEdgeFittingSecondStep(t,a2,a5):
+#     return a1_f + term0(t,a2,a6_f) + term1(t,a2,a5,a6_f) * (1-(term3(t,t0_f,sigma_f) - term4(t,t0_f,alpha_f,sigma_f)* term5(t,t0_f,alpha_f,sigma_f)))
+
+# def AdvancedBraggEdegFittingThirdStep(t,t0,sigma,alpha):
+#     return a1_f + term0(t,a2_f,a6_f) + term1(t,a2_f,a5_f,a6_f) * (1-(term3(t,t0,sigma) - term4(t,t0,alpha,sigma)* term5(t,t0,alpha,sigma)))
+
+# def AdvancedBraggEdegFittingFourthStep(t,a1,a2,a5,a6):
+#     return a1 + term0(t,a2,a6) + term1(t,a2,a5,a6) * (1-(term3(t,t0_f,sigma_f) - term4(t,t0_f,alpha_f,sigma_f)* term5(t,t0_f,alpha_f,sigma_f)))
+
+# def AdvancedBraggEdegFittingFifthStep(t,t0,sigma,alpha): #this is just the same as the third
+#     return a1_f + term0(t,a2_f,a6_f) + term1(t,a2_f,a5_f,a6_f) * (1-(term3(t,t0,sigma) - term4(t,t0,alpha,sigma)* term5(t,t0,alpha,sigma)))
 
 def AdvancedBraggEdegFittingAll(t,t0,sigma,alpha,a1,a2,a5,a6):
     return a1 + term0(t,a2,a6) + term1(t,a2,a5,a6) * (1-(term3(t,t0,sigma) - term4(t,t0,alpha,sigma)* term5(t,t0,alpha,sigma)))
 
-def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha, bool_print):
+def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha, bool_print, bool_average):
     
     #get the part of the spectrum that I want to fit
 #    mybragg = -1*np.log(myspectrum[myrange[0]:myrange[1]]/np.max(myspectrum[myrange[0]:myrange[1]]))
@@ -56,6 +74,9 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha,
     mybragg= myspectrum[myrange[0]:myrange[1]]
     plt.figure
     plt.plot(mybragg)
+    
+    if (bool_average):
+        mybragg = running_mean(mybragg,3)
     
     #first step: estimate the linear function before and after the Bragg Edge
     
@@ -242,6 +263,21 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha,
     a5_f = result7.best_values.get('a5')
     a6_f = result7.best_values.get('a6')
     
+#    Get the extrema for edge height fitting
+    fitted_data = result7.best_fit
+    x =np.linspace(0,len(fitted_data), len(fitted_data))
+    result_firstpart = ModelFirstPart(t=x,a1=a1_f,a2=a2_f,a6=a6_f)
+    result_secondpart = ModelSecondPart(t=x, a2=a2_f, a5=a5_f, a6=a6_f)
+#    result_thirdpart = ModelThirdPart(t=x, t0=t0_f, sigma=sigma_f, alpha=alpha_f)
+    
+    pos_extrema = []
+    pos_extrema.append(int((argrelextrema(fitted_data, np.greater))[0]))
+    
+    for i in range(int(pos_extrema[0]), len(fitted_data)):
+        if (np.abs(fitted_data[i]-(result_firstpart[i]+result_secondpart[i]))<=0.001):
+            pos_extrema.append(i)
+            break
+    
     plt.figure
     plt.plot(t, mybragg, 'b-')
     plt.plot(t, result7.init_fit, 'k--')
@@ -264,6 +300,6 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha,
         print(result6.fit_report())
         
     
-    return {'t0':t0_f, 'sigma':sigma_f, 'alpha':alpha_f, 'a1':a1_f, 'a2':a2_f,'a5':a5_f, 'a6':a6_f, 'final_result':result7}
+    return {'t0':t0_f, 'sigma':sigma_f, 'alpha':alpha_f, 'a1':a1_f, 'a2':a2_f,'a5':a5_f, 'a6':a6_f, 'final_result':result7, 'fitted_data':fitted_data, 'pos_extrema':pos_extrema}
 
     
