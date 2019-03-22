@@ -7,6 +7,7 @@ from scipy.special import erfc
 from lmfit import Model
 from numpy import loadtxt
 from scipy.signal import argrelextrema
+from TOF_routines import find_nearest
 
 def term0(t,a2,a6):
     return  a2 * (t - a6)
@@ -43,9 +44,9 @@ def ModelSecondPart(t,a2,a5,a6):
 def ModelThirdPart(t, t0, sigma, alpha):
     return (1-(term3(t,t0,sigma) - term4(t,t0,alpha,sigma)* term5(t,t0,alpha,sigma)))
 
-# final formulation of the two lines: (to derive also explicitally I would say
-# line1: ModelFirstPart-ModelSecondPart
-# line2: ModelFirstPart+ModelSecondPart
+# final formulation of the two lines: 
+# line1: ModelFirstPart-ModelSecondPart = a1+term0(t,a2,a6)-term1(t,a2,a5,a6)= a1+a2*(t-a6)-((a5-a2)/2)*(t-a6)=a1+a2*t-a2*a6-a5/2*t+a2/2*t+(a2-a5)*a6/2 = a1-a2*a6+(a2-a5)*a6/2+t*(a2-a5/2+a2/2)*t
+# line2: ModelFirstPart+ModelSecondPart = a1+term0(t,a2,a6)+term1(t,a2,a5,a6)=a1+a2*(t-a6)+((a5-a2)/2)*(t-a6)=a1+a2*t-a2*a6+a5/2*t-a2/2*t-(a2-a5)*a6/2 = a1-a2*a6-(a2-a5)*a6/2+t*(a2+a5/2-a2/2)*t
 
 # #I am not sure that all these steps are necessary, most likely one can also only define one and decide how many to fit: TODO understand this 
 # def AdvancedBraggEdgeFittingFirstStep(t,a1,a6):
@@ -268,15 +269,25 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha,
     x =np.linspace(0,len(fitted_data), len(fitted_data))
     result_firstpart = ModelFirstPart(t=x,a1=a1_f,a2=a2_f,a6=a6_f)
     result_secondpart = ModelSecondPart(t=x, a2=a2_f, a5=a5_f, a6=a6_f)
-#    result_thirdpart = ModelThirdPart(t=x, t0=t0_f, sigma=sigma_f, alpha=alpha_f)
+    result_thirdpart = ModelThirdPart(t=x, t0=t0_f, sigma=sigma_f, alpha=alpha_f)
     
     pos_extrema = []
     pos_extrema.append(int((argrelextrema(fitted_data, np.greater))[0]))
     
     for i in range(int(pos_extrema[0]), len(fitted_data)):
-        if (np.abs(fitted_data[i]-(result_firstpart[i]+result_secondpart[i]))<=0.001):
+        if (np.abs(fitted_data[i]-(result_firstpart[i]+result_secondpart[i]))<=0.0015):
             pos_extrema.append(i)
             break
+    
+    pos_extrema.append(find_nearest(result_thirdpart,1))
+
+# # I will try now with the 2 derivatives
+#     derI=np.gradient(fitted_data)
+#     derII=np.gradient(fitted_data)
+    
+#     pos_extrema.append(find_nearest(derI,0))
+
+#     pos_extrema.append(find_nearest(derII, np.max(derII)))
     
     plt.figure
     plt.plot(t, mybragg, 'b-')
