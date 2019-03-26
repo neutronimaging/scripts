@@ -272,14 +272,30 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha,
     result_thirdpart = ModelThirdPart(t=x, t0=t0_f, sigma=sigma_f, alpha=alpha_f)
     
     pos_extrema = []
-    pos_extrema.append(int((argrelextrema(fitted_data, np.greater))[0]))
     
-    for i in range(int(pos_extrema[0]), len(fitted_data)):
+#     print(len((argrelextrema(fitted_data, np.greater))[0]))
+    
+    if len(argrelextrema(fitted_data, np.greater)[0])!=0:
+           pos_extrema.append(int((argrelextrema(fitted_data, np.greater))[0]))
+    else :
+#         print('i am in the else')
+        for i in range(0, len(fitted_data)):
+            print(np.abs(fitted_data[i]-(result_firstpart[i]-result_secondpart[i])))
+            if (np.abs(fitted_data[i]-(result_firstpart[i]-result_secondpart[i]))<=0.0015):                
+                pos_extrema.append(i)
+                break
+#             pos_extrema.append(0)
+            
+#     print(pos_extrema[0])        
+    
+    
+    for i in range(int(t0_f), len(fitted_data)):
         if (np.abs(fitted_data[i]-(result_firstpart[i]+result_secondpart[i]))<=0.0015):
             pos_extrema.append(i)
             break
     
-    pos_extrema.append(find_nearest(result_thirdpart,1))
+#     pos_extrema.append(find_nearest(result_thirdpart,1))
+#     print(pos_extrema[1])
 
 # # I will try now with the 2 derivatives
 #     derI=np.gradient(fitted_data)
