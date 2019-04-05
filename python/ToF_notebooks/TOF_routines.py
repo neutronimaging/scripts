@@ -7,7 +7,7 @@ def tof2l(tof, lambda0, t0, L):
     l=lambda0+h/m*(tof-t0)/(L)/1e-10
     return l
 
-def l2tof(l, lambda0, to0, L):
+def l2tof(l, lambda0, t0, L):
     tof=t0+(l*1e-10)*(L)*m/h
     return tof
 
