@@ -87,6 +87,12 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha,
     bragg_before=mybragg[0:est_pos-int(est_pos*0.1)]
     t_after= t[est_pos+int(est_pos*0.1):-1]
     bragg_after=mybragg[est_pos+int(est_pos*0.1):-1]
+#     print(est_pos-int(est_pos*0.1))
+#     print(est_pos+int(est_pos*0.1))
+#     print(t_before)
+#     print(t_after)
+#     print(bragg_before)
+#     print(bragg_after)
     
     [slope_before, interception_before] = np.polyfit(t_before, bragg_before, 1)
     [slope_after, interception_after] = np.polyfit(t_after, bragg_after, 1)
