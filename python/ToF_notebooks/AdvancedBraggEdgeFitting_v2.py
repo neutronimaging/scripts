@@ -37,7 +37,7 @@ def exp_before(t,a5,a6):
     return np.exp(-(a5+a6*t))
 
 def exp_combined(t,a1,a2,a5,a6):
-    return exp_before(t,a1,a2)*exp_after(t,a5,a6)
+    return exp_after(t,a1,a2)*exp_before(t,a5,a6)
 
 def B(t,t0,alpha,sigma):
     return (0.5*(term3(t,t0,sigma) - term4(t,t0,alpha,sigma)* term5(t,t0,alpha,sigma)))
@@ -54,8 +54,8 @@ def running_mean(x, N):
 
 
 
-def AdvancedBraggEdegFittingAll(t,t0,sigma,alpha,a1,a2,a5,a6):
-    return a1 + term0(t,a2,a6) + term1(t,a2,a5,a6) * (1-(term3(t,t0,sigma) - term4(t,t0,alpha,sigma)* term5(t,t0,alpha,sigma)))
+# def AdvancedBraggEdegFittingAll(t,t0,sigma,alpha,a1,a2,a5,a6):
+#     return a1 + term0(t,a2,a6) + term1(t,a2,a5,a6) * (1-(term3(t,t0,sigma) - term4(t,t0,alpha,sigma)* term5(t,t0,alpha,sigma)))
 
 def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha, bool_print, bool_average, bool_linear):
     
@@ -130,9 +130,9 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha,
         plt.plot(t_after,bragg_after,'.g')
         plt.plot(t,mybragg)
 
-        plt.plot(t,interception_before+slope_before*t,'r')
-        plt.plot(t,interception_after+slope_after*t,'g')
-        plt.plot(t,exp_before(t,a1_f,a2_f),'r')
+        plt.plot(t,interception_before+slope_before*t,'--r')
+        plt.plot(t,interception_after+slope_after*t,'--g')
+        plt.plot(t,exp_before(t,a5_f,a6_f),'r')
         plt.plot(t,exp_combined(t,a1_f,a2_f,a5_f,a6_f),'g')
             
     
