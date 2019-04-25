@@ -43,10 +43,10 @@ def B(t,t0,alpha,sigma):
     return (0.5*(term3(t,t0,sigma) - term4(t,t0,alpha,sigma)* term5(t,t0,alpha,sigma)))
 
 def BraggEdgeLinear(t,t0,alpha,sigma,a1,a2,a5,a6):
-    return line_before(t,a1,a2)*B(t,t0,alpha,sigma)+line_after(t,a5,a6)*(1-B(t,t0,alpha,sigma))
+    return line_after(t,a1,a2)*B(t,t0,alpha,sigma)+line_before(t,a5,a6)*(1-B(t,t0,alpha,sigma))
 
 def BraggEdgeExponential(t,t0,alpha,sigma,a1,a2,a5,a6):
-        return exp_before(t,a1,a2)*(exp_after(t,a5,a6)+(1-exp_after(t,a5,a6))*B(t,t0,alpha,sigma))
+        return exp_after(t,a1,a2)*(exp_before(t,a5,a6)+(1-exp_before(t,a5,a6))*B(t,t0,alpha,sigma))
 
 def running_mean(x, N):
     cumsum = np.cumsum(np.insert(x, 0, 0)) 
@@ -57,35 +57,46 @@ def running_mean(x, N):
 # def AdvancedBraggEdegFittingAll(t,t0,sigma,alpha,a1,a2,a5,a6):
 #     return a1 + term0(t,a2,a6) + term1(t,a2,a5,a6) * (1-(term3(t,t0,sigma) - term4(t,t0,alpha,sigma)* term5(t,t0,alpha,sigma)))
 
-def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha, bool_print, bool_average, bool_linear):
+def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est_alpha, bool_print, bool_average, bool_linear): ## my range should be now the index position of the spectra that I want to study, est_pos is also the index position where the expected peak is 
     
     #get the part of the spectrum that I want to fit
 #    mybragg = -1*np.log(myspectrum[myrange[0]:myrange[1]]/np.max(myspectrum[myrange[0]:myrange[1]]))
 #    mybragg = mybragg/np.max(mybragg)# iniziamo senza rumore aggiunto
     mybragg= myspectrum[myrange[0]:myrange[1]]
-    plt.figure
-    plt.plot(mybragg)
+
     
     if (bool_average):
         mybragg = running_mean(mybragg,3)
     
     #first step: estimate the linear function before and after the Bragg Edge
     
-    est_pos=est_pos-myrange[0]
-    t=np.linspace(0,np.size(mybragg)-1,np.size(mybragg))
+#     est_pos=est_pos-myrange[0]
+#     t=np.linspace(0,np.size(mybragg)-1,np.size(mybragg))
+#     t_before= t[0:est_pos-int(est_pos*0.3)]
+#     bragg_before=mybragg[0:est_pos-int(est_pos*0.3)]
+#     t_after= t[est_pos+int(est_pos*0.2):-1]
+#     bragg_after=mybragg[est_pos+int(est_pos*0.2):-1]
+ 
+    # here I try to fit in TOF and not in unitless units. This should give me more meaningfull results in the paramters I believe
+
+    t = myTOF[myrange[0]:myrange[1]]
+    est_pos=est_pos-myrange[0] # I move the estimated position relative to the studied range, this is an index 
+    t0_f=myTOF[est_pos+myrange[0]] # this is the actual estimated first position in TOF [s]
+    
+    plt.figure()
+    plt.plot(t, mybragg)
+    plt.plot(t0_f, mybragg[est_pos],'x', markeredgewidth=3, c='orange')
+    
     t_before= t[0:est_pos-int(est_pos*0.3)]
     bragg_before=mybragg[0:est_pos-int(est_pos*0.3)]
-    t_after= t[est_pos+int(est_pos*0.2):-1]
-    bragg_after=mybragg[est_pos+int(est_pos*0.2):-1]
-#     print(est_pos-int(est_pos*0.1))
-#     print(est_pos+int(est_pos*0.1))
-#     print(t_before)
-#     print(t_after)
-#     print(bragg_before)
-#     print(bragg_after)
+#     t_after= t[est_pos+int(est_pos*0.2):-1]
+#     bragg_after=mybragg[est_pos+int(est_pos*0.2):-1]
+    t_after= t[est_pos:-1]
+    bragg_after=mybragg[est_pos:-1]
+    
 
 
-    t0_f=est_pos
+    
     
     if (bool_linear):    
         [slope_before, interception_before] = np.polyfit(t_before, bragg_before, 1)
@@ -136,9 +147,8 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha,
         plt.plot(t,exp_combined(t,a1_f,a2_f,a5_f,a6_f),'g')
             
     
-#     sigma_f=-1
-#     alpha_f=-10
 
+    
     sigma_f = est_sigma
     alpha_f = est_alpha
     # method='trust_exact'
@@ -152,6 +162,12 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha,
 #     gmodel = Model(BraggEdgeLinear)
     
     params = gmodel.make_params(t0=t0_f,sigma=sigma_f, alpha=alpha_f, a1=a1_f, a2=a2_f, a5=a5_f, a6=a6_f)
+    
+    first_guess = gmodel.eval(params, t=t)
+    plt.figure()
+    plt.plot(t,first_guess,'b')
+    plt.plot(t,mybragg,'b--')
+    plt.title('initial BE with given parameters')
     params['alpha'].vary = False
     params['sigma'].vary = False
     params['t0'].vary = False
@@ -252,7 +268,6 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha,
     a2_f = result5.best_values.get('a2')
     a5_f = result5.best_values.get('a5')
     a6_f = result5.best_values.get('a6')
-
 #     t0_f=result5.best_values.get('t0')
 #     sigma_f=result5.best_values.get('sigma')
 #     alpha_f=result5.best_values.get('alpha')
@@ -338,15 +353,19 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, est_pos, est_sigma, est_alpha,
     
     plt.figure()
     plt.plot(t, mybragg, 'b-')
-    plt.plot(t, result7.init_fit, 'k--')
+#     plt.plot(t, result7.init_fit, 'k--')
     plt.plot(t, result7.best_fit, 'r-', linewidth='1.2')
-    plt.plot(t, result1.best_fit, '--')
+    plt.plot(t, result1.best_fit, 'k--')
+    plt.plot(t, result1.init_fit, 'r--')
     plt.plot(t, result2.best_fit, '--')
     plt.plot(t, result3.best_fit, '--')
     plt.plot(t, result4.best_fit, '--')
     plt.plot(t, result5.best_fit, '--')
     plt.plot(t, result6.best_fit, '--')
-    plt.plot(t[int(t0_f)], result7.best_fit[int(t0_f)],'ok')
+    index_t0 = find_nearest(t,t0_f)
+#     plt.plot(t[int(t0_f)], result7.best_fit[int(t0_f)],'ok')
+    plt.plot(t0_f,result7.best_fit[index_t0],'ok')
+#     plt.plot(t0_f, result7.best_fit[np.where(t==t0_f)],'ok')
     plt.show()
     
     if (bool_print):
