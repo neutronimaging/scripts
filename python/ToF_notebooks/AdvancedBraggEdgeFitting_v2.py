@@ -46,7 +46,8 @@ def BraggEdgeLinear(t,t0,alpha,sigma,a1,a2,a5,a6):
     return line_after(t,a1,a2)*B(t,t0,alpha,sigma)+line_before(t,a5,a6)*(1-B(t,t0,alpha,sigma))
 
 def BraggEdgeExponential(t,t0,alpha,sigma,a1,a2,a5,a6):
-        return exp_after(t,a1,a2)*(exp_before(t,a5,a6)+(1-exp_before(t,a5,a6))*B(t,t0,alpha,sigma))
+    return exp_after(t,a1,a2) * ( exp_before(t,a5,a6)+ (1-exp_before(t,a5,a6)) * B(t,t0,alpha,sigma) )
+    
 
 def running_mean(x, N):
     cumsum = np.cumsum(np.insert(x, 0, 0)) 
@@ -112,6 +113,7 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
         plt.plot(t,mybragg)  
         plt.plot(t,interception_before+slope_before*t,'g')
         plt.plot(t,interception_after+slope_after*t,'r')
+        plt.title('linear fitting before and after the given edge position')
         gmodel = Model(BraggEdgeLinear)
     else:
         [slope_before, interception_before] = np.polyfit(t_before, bragg_before, 1)
@@ -122,19 +124,19 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
         a6_f=slope_before
         a1_f=interception_after
         
-        exp_model_before = Model(exp_before)
-        params = exp_model_before.make_params(a5=a5_f, a6=a6_f)
-        result_exp_model_before = exp_model_before.fit(bragg_before,params,t=t_before)
-        a5_f=result_exp_model_before.best_values.get('a5')
-        a6_f=result_exp_model_before.best_values.get('a6')
-        
-        exp_model_after = Model(exp_combined)
-        params = exp_model_after.make_params(a1=a1_f, a2=a2_f, a5=a5_f, a6=a6_f)
-        params['a5'].vary = False
-        params['a6'].vary = False
+        exp_model_after = Model(exp_after)
+        params = exp_model_after.make_params(a1=a1_f, a2=a2_f)
         result_exp_model_after = exp_model_after.fit(bragg_after,params,t=t_after)
         a1_f=result_exp_model_after.best_values.get('a1')
         a2_f=result_exp_model_after.best_values.get('a2')
+        
+        exp_model_before = Model(exp_combined)
+        params = exp_model_before.make_params(a1=a1_f, a2=a2_f, a5=a5_f, a6=a6_f)
+        params['a1'].vary = False
+        params['a2'].vary = False
+        result_exp_model_before = exp_model_before.fit(bragg_before,params,t=t_before)
+        a5_f=result_exp_model_before.best_values.get('a5')
+        a6_f=result_exp_model_before.best_values.get('a6')
         gmodel = Model(BraggEdgeExponential)
         plt.figure()
         plt.plot(t_before,bragg_before,'.r')
@@ -143,8 +145,10 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
 
         plt.plot(t,interception_before+slope_before*t,'--r')
         plt.plot(t,interception_after+slope_after*t,'--g')
-        plt.plot(t,exp_before(t,a5_f,a6_f),'r')
-        plt.plot(t,exp_combined(t,a1_f,a2_f,a5_f,a6_f),'g')
+        plt.plot(t,exp_after(t,a1_f,a2_f),'g')
+        plt.plot(t,exp_combined(t,a1_f,a2_f,a5_f,a6_f),'r')
+        plt.title('eponential fitting before and after the given edge position')
+#         plt.plot(t, BraggEdgeExponential(t,t0_f,est_alpha,est_sigma,a1_f,a2_f,a5_f,a6_f))
             
     
 
@@ -365,6 +369,7 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
     index_t0 = find_nearest(t,t0_f)
 #     plt.plot(t[int(t0_f)], result7.best_fit[int(t0_f)],'ok')
     plt.plot(t0_f,result7.best_fit[index_t0],'ok')
+    plt.title('edge fitting and estimated edge position')
 #     plt.plot(t0_f, result7.best_fit[np.where(t==t0_f)],'ok')
     plt.show()
     
