@@ -24,3 +24,16 @@ def find_nearest(array, value):
     array = np.asarray(array)
     idx = (np.abs(array - value)).argmin()
     return (idx)
+
+def find_first(array, value):
+    for idx in range(0, len(array)):
+        if array[idx]>=value:
+            break
+    return idx
+
+def find_last(array, value):
+    for idx in range(0, len(array)):
+        if idx>1:
+            if ((array[idx]-array[idx-1])>=value+0.005):
+                break
+    return idx

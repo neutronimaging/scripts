@@ -8,6 +8,8 @@ from lmfit import Model
 from numpy import loadtxt
 from scipy.signal import argrelextrema
 from TOF_routines import find_nearest
+from TOF_routines import find_first
+from TOF_routines import find_last
 
 # def term0(t,a2,a6):
 #     return  a2 * (t - a6)
@@ -323,37 +325,27 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
     
     pos_extrema = []
     
-# #     print(len((argrelextrema(fitted_data, np.greater))[0]))
-    
-#     if len(argrelextrema(fitted_data, np.greater)[0])!=0:
-#            pos_extrema.append(int((argrelextrema(fitted_data, np.greater))[0]))
-#     else :
-# #         print('i am in the else')
-#         for i in range(0, len(fitted_data)):
-#             print(np.abs(fitted_data[i]-(result_firstpart[i]-result_secondpart[i])))
-#             if (np.abs(fitted_data[i]-(result_firstpart[i]-result_secondpart[i]))<=0.0015):                
-#                 pos_extrema.append(i)
-#                 break
-# #             pos_extrema.append(0)
-            
-# #     print(pos_extrema[0])        
-    
-    
-#     for i in range(int(t0_f), len(fitted_data)):
-#         if (np.abs(fitted_data[i]-(result_firstpart[i]+result_secondpart[i]))<=0.0015):
-#             pos_extrema.append(i)
-#             break
-    
-#     pos_extrema.append(find_nearest(result_thirdpart,1))
-#     print(pos_extrema[1])
+    ## This does not work all the time..
+#     step_function = B(t,t0_f,alpha_f,sigma_f)
+#     min_pos = find_last(step_function,0.0)
+#     pos_extrema.append(min_pos)
+#     max_pos = find_first(step_function,0.99)
+#     pos_extrema.append(max_pos)
 
-# # I will try now with the 2 derivatives
-#     derI=np.gradient(fitted_data)
-#     derII=np.gradient(fitted_data)
+# I try with Florencia-s implementation
     
-#     pos_extrema.append(find_nearest(derI,0))
+    if (bool_linear):  
+        fit_before = line_before(t,a5_f,a6_f)
+        fit_after = line_afte(t,a1_f,a2_f)
+    else:
+        fit_before = exp_combined(t,a1_f,a2_f,a5_f,a6_f)
+        fit_after = exp_after(t,a1_f,a2_f)
+    
+    index_t0 = find_nearest(t,t0_f)
+    pos_extrema.append(fit_before[index_t0])
+    pos_extrema.append(fit_after[index_t0])
+    # it is actually not a position......
 
-#     pos_extrema.append(find_nearest(derII, np.max(derII)))
     
     plt.figure()
     plt.plot(t, mybragg, 'b-')
@@ -366,9 +358,12 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
     plt.plot(t, result4.best_fit, '--')
     plt.plot(t, result5.best_fit, '--')
     plt.plot(t, result6.best_fit, '--')
-    index_t0 = find_nearest(t,t0_f)
-#     plt.plot(t[int(t0_f)], result7.best_fit[int(t0_f)],'ok')
+    
+    
     plt.plot(t0_f,result7.best_fit[index_t0],'ok')
+    plt.plot(t0_f, fit_before[index_t0],'ok')
+    plt.plot(t0_f, fit_after[index_t0],'ok')
+#     plt.plot(t,step_function,'--k')
     plt.title('edge fitting and estimated edge position')
 #     plt.plot(t0_f, result7.best_fit[np.where(t==t0_f)],'ok')
     plt.show()
