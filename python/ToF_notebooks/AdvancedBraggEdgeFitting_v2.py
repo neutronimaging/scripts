@@ -336,7 +336,7 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
     
     if (bool_linear):  
         fit_before = line_before(t,a5_f,a6_f)
-        fit_after = line_afte(t,a1_f,a2_f)
+        fit_after = line_after(t,a1_f,a2_f)
     else:
         fit_before = exp_combined(t,a1_f,a2_f,a5_f,a6_f)
         fit_after = exp_after(t,a1_f,a2_f)
