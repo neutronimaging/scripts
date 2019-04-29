@@ -325,14 +325,14 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
     
     pos_extrema = []
     
-    ## This does not work all the time..
+    ## Attempt n.1 -------- Here I was searching the last 0 value and the first value with 1.0 in the step function, however is it not a robust solution
 #     step_function = B(t,t0_f,alpha_f,sigma_f)
 #     min_pos = find_last(step_function,0.0)
 #     pos_extrema.append(min_pos)
 #     max_pos = find_first(step_function,0.99)
 #     pos_extrema.append(max_pos)
 
-# I try with Florencia-s implementation
+
     
     if (bool_linear):  
         fit_before = line_before(t,a5_f,a6_f)
@@ -342,10 +342,24 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
         fit_after = exp_after(t,a1_f,a2_f)
     
     index_t0 = find_nearest(t,t0_f)
-    pos_extrema.append(fit_before[index_t0])
-    pos_extrema.append(fit_after[index_t0])
-    # it is actually not a position......
+    
+    # Attempt n.2 ------This is Florencia's approach: this gives an overestimation in most cases of the edge height
+#     pos_extrema.append(fit_before[index_t0])
+#     pos_extrema.append(fit_after[index_t0])
 
+# Attempt n.3 ------ This approach is based on the difference between the fit before and after the edge and the fitted data itself. so far, it gives the nicest results on the calibration sample, however the value used as threshold is not general and should probably be adjusted from case to case. So again it is not yet the final solution 
+    
+    for i in range(0, len(fitted_data)):
+#     print(np.abs(fitted_data[i]-(result_firstpart[i]-result_secondpart[i])))
+        if (np.abs(fitted_data[i]-fit_before[i])>=0.0015):                
+            pos_extrema.append(i)
+            break
+    
+    for i in range(len(fitted_data)-1,0,-1):
+        if (np.abs(fitted_data[i]-fit_after[i])>=0.0015):
+            pos_extrema.append(i)
+            break
+        
     
     plt.figure()
     plt.plot(t, mybragg, 'b-')
@@ -361,8 +375,10 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
     
     
     plt.plot(t0_f,result7.best_fit[index_t0],'ok')
-    plt.plot(t0_f, fit_before[index_t0],'ok')
-    plt.plot(t0_f, fit_after[index_t0],'ok')
+#     plt.plot(t0_f, fit_before[index_t0],'ok')
+#     plt.plot(t0_f, fit_after[index_t0],'ok')
+    plt.plot(t[pos_extrema[0]],result7.best_fit[pos_extrema[0]],'ok')
+    plt.plot(t[pos_extrema[1]],result7.best_fit[pos_extrema[1]],'ok')
 #     plt.plot(t,step_function,'--k')
     plt.title('edge fitting and estimated edge position')
 #     plt.plot(t0_f, result7.best_fit[np.where(t==t0_f)],'ok')
