@@ -349,16 +349,27 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
 
 # Attempt n.3 ------ This approach is based on the difference between the fit before and after the edge and the fitted data itself. so far, it gives the nicest results on the calibration sample, however the value used as threshold is not general and should probably be adjusted from case to case. So again it is not yet the final solution 
     
-    for i in range(0, len(fitted_data)):
-#     print(np.abs(fitted_data[i]-(result_firstpart[i]-result_secondpart[i])))
-        if (np.abs(fitted_data[i]-fit_before[i])>=0.0015):                
-            pos_extrema.append(i)
-            break
+#     for i in range(0, len(fitted_data)):
+#         if (np.abs(fitted_data[i]-fit_before[i])>=0.0015):                
+#             pos_extrema.append(i)
+#             break
     
-    for i in range(len(fitted_data)-1,0,-1):
-        if (np.abs(fitted_data[i]-fit_after[i])>=0.0015):
-            pos_extrema.append(i)
-            break
+#     for i in range(len(fitted_data)-1,0,-1):
+#         if (np.abs(fitted_data[i]-fit_after[i])>=0.0015):
+#             pos_extrema.append(i)
+#             break
+
+    # Attempt n.4 -- max and min for the calibration sample should work find
+    range_min = t[0:index_t0]
+    range_max= t[index_t0:-1]
+    min_fit = np.min(fitted_data[0:index_t0])
+    max_fit = np.max(fitted_data[index_t0:-1])
+    pos_min = find_nearest(fitted_data[0:index_t0], min_fit)
+    pos_max = index_t0+find_nearest(fitted_data[index_t0:-1], max_fit)
+    
+#     print(min_fit, max_fit, pos_min, pos_max)
+    pos_extrema.append(pos_min)
+    pos_extrema.append(pos_max)
         
     
     plt.figure()
