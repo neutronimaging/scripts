@@ -2,3 +2,9 @@
 python/notebooks/.ipynb_checkpoints/BatchProcessingRecon-checkpoint.ipynb
 
 python/notebooks/.ipynb_checkpoints/CalibrateVelocitySelector-checkpoint.ipynb
+python/notebooks/.ipynb_checkpoints
+
+python/ToF_notebooks/.DS_Store
+python/ToF_notebooks/MCPOverLapCorrection/.DS_Store
+python/ToF_notebooks/FileShutter.txt
+
