@@ -102,7 +102,7 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
     plt.figure()
     plt.plot(t, mybragg)
     plt.plot(t0_f, mybragg[est_pos],'x', markeredgewidth=3, c='orange')
-    plt.title('(1,1,0) Bragg edge')
+    plt.title('Bragg edge')
     plt.xlabel('Wavelenght [Å]')
     plt.ylabel('Tranmission I/I$_{0}$')
     #     plt.savefig('step1_fitting.pdf')
