@@ -3,7 +3,7 @@ from numpy import pi, r_, math, random
 import matplotlib.pyplot as plt
 from scipy import optimize
 from scipy.optimize import curve_fit
-from scipy.special import erfc
+from scipy.special import erfc, erf
 #-------------------------------------------------------
 from scipy.misc import electrocardiogram #add by Monica 
 from scipy.signal import find_peaks #add by Monica 
@@ -27,11 +27,17 @@ from TOF_routines import rotatedata
 def term3(t,t0,sigma):
     return erfc(-((t-t0)/(sigma * math.sqrt(2))))
 
+def term3_1(t,t0,sigma):
+    return erf(-((t-t0)/(sigma * math.sqrt(2))))
+
 def term4(t,t0,alpha,sigma):
     return np.exp(-((t-t0)/alpha) + ((sigma*sigma)/(2*alpha*alpha)))
 
 def term5(t,t0,alpha,sigma):
     return erfc(-((t-t0)/(sigma * math.sqrt(2))) + sigma/alpha)
+
+def term5_1(t,t0,alpha,sigma):
+    return erf(-((t-t0)/(sigma * math.sqrt(2))) + sigma/alpha)
 
 def line_after(t,a1,a2):
     return a1+a2*t
@@ -52,7 +58,8 @@ def B(t,t0,alpha,sigma, bool_transmission):
     if (bool_transmission):
         edge = 0.5*(term3(t,t0,sigma) - term4(t,t0,alpha,sigma)* term5(t,t0,alpha,sigma))
     else:
-        edge = 1-0.5*(term3(t,t0,sigma) - term4(t,t0,alpha,sigma)* term5(t,t0,alpha,sigma))
+#         edge = 1-0.5*(term3(t,t0,sigma) - term4(t,t0,alpha,sigma)* term5(t,t0,alpha,sigma))
+        edge = 0.5*(term3_1(t,t0,sigma) - term4(t,t0,alpha,sigma)* term5_1(t,t0,alpha,sigma))
     return (edge)
 
 
