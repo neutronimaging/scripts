@@ -10,6 +10,8 @@ from scipy.signal import find_peaks #add by Monica
 
 #-------------------------------------------------------
 from lmfit import Model
+from lmfit.printfuncs import *
+import lmfit
 from numpy import loadtxt
 from scipy.signal import argrelextrema
 from TOF_routines import find_nearest
@@ -346,7 +348,11 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
     print(params)
     result7 = gmodel.fit(mybragg, params, t=t, nan_policy='propagate', method=method)
     
+#     print('errors: ', report_errors(params))
+    
     print(result7.fit_report())
+#     print(result7.conf_interval())
+#    print(result7.ci_report()) # this crashes sometimes when the MinimizerException: Cannot determine Confidence Intervals without sensible uncertainty estimates
     
     
     t0_f=result7.best_values.get('t0')
