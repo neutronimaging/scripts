@@ -1,3 +1,4 @@
+
 import numpy as np
 
 h=6.62607004e-34 #Planck constant [m^2 kg / s]
@@ -37,3 +38,11 @@ def find_last(array, value):
             if ((array[idx]-array[idx-1])>=value+0.005):
                 break
     return idx
+#------------------Monica-----
+def rotatedata(x,y,a):
+    cosa=np.cos(a)
+    sina=np.sin(a)
+    x = x*cosa-y*sina
+    y = x*sina+y*cosa
+    return x,y
+#---------------------------------
