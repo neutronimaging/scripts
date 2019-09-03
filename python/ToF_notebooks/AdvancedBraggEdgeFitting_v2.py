@@ -258,6 +258,9 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
     params['sigma'].vary= False
     params['alpha'].vary = False
     params['bool_transmission'].vary = False
+    params['t0'].min = myTOF[myrange[0]]
+    params['t0'].max = myTOF[myrange[1]]
+
     
     
     result3=gmodel.fit(mybragg, params, t=t, method=method, nan_policy='propagate')
@@ -278,7 +281,12 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
     params['a1'].vary= False
     params['a6'].vary = False
     params['bool_transmission'].vary = False
-    #     params['t0'].vary= False
+    params['t0'].min = myTOF[myrange[0]]
+    params['t0'].max = myTOF[myrange[1]]
+    params['alpha'].min = 0.0
+    params['alpha'].max =1.5
+    params['sigma'].min = 0.0
+    params['sigma'].max =1.5
     
     result4=gmodel.fit(mybragg, params, t=t, nan_policy='propagate',method=method)
     
@@ -325,6 +333,12 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
     params['a1'].vary= False
     params['a6'].vary = False
     params['bool_transmission'].vary = False
+    params['t0'].min = myTOF[myrange[0]]
+    params['t0'].max = myTOF[myrange[1]]
+    params['alpha'].min = 0.0
+    params['alpha'].max =1.5
+    params['sigma'].min = 0.0
+    params['sigma'].max =1.5
     
     result6= gmodel.fit(mybragg, params, t=t, nan_policy='propagate', method=method)
     
@@ -345,14 +359,24 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
     
     params = gmodel.make_params(t0=t0_f,sigma=sigma_f, alpha=alpha_f, a1=a1_f, a2=a2_f, a5=a5_f, a6=a6_f)
     params['bool_transmission'].vary = False
+    params['t0'].min = myTOF[myrange[0]]
+    params['t0'].max = myTOF[myrange[1]]
+    params['alpha'].min = 0.0
+    params['alpha'].max =1.5
+    params['sigma'].min = 0.0
+    params['sigma'].max =1.5
     print(params)
     result7 = gmodel.fit(mybragg, params, t=t, nan_policy='propagate', method=method)
     
 #     print('errors: ', report_errors(params))
     
     print(result7.fit_report())
+    print(result7.covar)
+    
+    print('bool value, Boolean for whether error bars were estimated by fit.', result7.errorbars)
+    print(result7.ci_out)
 #     print(result7.conf_interval())
-#    print(result7.ci_report()) # this crashes sometimes when the MinimizerException: Cannot determine Confidence Intervals without sensible uncertainty estimates
+#     print(result7.ci_report()) # this crashes sometimes when the MinimizerException: Cannot determine Confidence Intervals without sensible uncertainty estimates
     
     
     t0_f=result7.best_values.get('t0')
