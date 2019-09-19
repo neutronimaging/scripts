@@ -183,6 +183,8 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
     params = gmodel.make_params(t0=t0_f,sigma=sigma_f, alpha=alpha_f, a1=a1_f, a2=a2_f, a5=a5_f, a6=a6_f, bool_trasmission=bool_transmission)
     print(bool_transmission)
     
+    print('initial params: ', params)
+    
     first_guess = gmodel.eval(params, t=t)
     plt.figure()
     plt.plot(t,mybragg,label='data')
