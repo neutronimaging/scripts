@@ -92,13 +92,14 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
     t = myTOF[myrange[0]:myrange[1]]
     est_pos=est_pos-myrange[0] # I move the estimated position relative to the studied range, this is an index
     t0_f=myTOF[est_pos+myrange[0]] # this is the actual estimated first position in TOF [s]
-
-    plt.figure()
-    plt.plot(t, mybragg)
-    plt.plot(t0_f, mybragg[est_pos],'x', markeredgewidth=3, c='orange')
-    plt.title('Bragg edge')
-    plt.xlabel('Wavelenght [Å]')
-    plt.ylabel('Tranmission I/I$_{0}$')
+    
+    if (bool_print):
+        plt.figure()
+        plt.plot(t, mybragg)
+        plt.plot(t0_f, mybragg[est_pos],'x', markeredgewidth=3, c='orange')
+        plt.title('Bragg edge')
+        plt.xlabel('Wavelenght [Å]')
+        plt.ylabel('Tranmission I/I$_{0}$')
     #     plt.savefig('step1_fitting.pdf')
     
     t_before= t[0:est_pos]
@@ -120,13 +121,15 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
         a5_f=interception_before
         a6_f=slope_before
         a1_f=interception_after
-        plt.figure()
-        plt.plot(t_before,bragg_before,'.g')
-        plt.plot(t_after,bragg_after,'.r')
-        plt.plot(t,mybragg)
-        plt.plot(t,interception_before+slope_before*t,'g')
-        plt.plot(t,interception_after+slope_after*t,'r')
-        plt.title('linear fitting before and after the given edge position')
+        
+        if (bool_print):
+            plt.figure()
+            plt.plot(t_before,bragg_before,'.g')
+            plt.plot(t_after,bragg_after,'.r')
+            plt.plot(t,mybragg)
+            plt.plot(t,interception_before+slope_before*t,'g')
+            plt.plot(t,interception_after+slope_after*t,'r')
+            plt.title('linear fitting before and after the given edge position')
         gmodel = Model(BraggEdgeLinear)
     else:
         [slope_before, interception_before] = np.polyfit(t_before, bragg_before, 1)
@@ -151,19 +154,20 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
         a5_f=result_exp_model_before.best_values.get('a5')
         a6_f=result_exp_model_before.best_values.get('a6')
         gmodel = Model(BraggEdgeExponential)
-        plt.figure()
-        plt.plot(t_before,bragg_before,'.r', label ='int point')
-        plt.plot(t_after,bragg_after,'.g', label='int point')
-        plt.plot(t,mybragg)
-        
-        plt.plot(t,interception_before+slope_before*t,'--r', label='firred line before')
-        plt.plot(t,interception_after+slope_after*t,'--g', label='fitted line after')
-        plt.plot(t,exp_after(t,a1_f,a2_f),'g', label='fitted exp before')
-        plt.plot(t,exp_combined(t,a1_f,a2_f,a5_f,a6_f),'r', label='fitted exp after')
-        plt.xlabel('Wavelenght [Å]')
-        plt.ylabel('Transmission I/I$_{0}$')
-        plt.title('fitting before and after the given edge position')
-        plt.legend()
+        if (bool_print):
+            plt.figure()
+            plt.plot(t_before,bragg_before,'.r', label ='int point')
+            plt.plot(t_after,bragg_after,'.g', label='int point')
+            plt.plot(t,mybragg)
+
+            plt.plot(t,interception_before+slope_before*t,'--r', label='firred line before')
+            plt.plot(t,interception_after+slope_after*t,'--g', label='fitted line after')
+            plt.plot(t,exp_after(t,a1_f,a2_f),'g', label='fitted exp before')
+            plt.plot(t,exp_combined(t,a1_f,a2_f,a5_f,a6_f),'r', label='fitted exp after')
+            plt.xlabel('Wavelenght [Å]')
+            plt.ylabel('Transmission I/I$_{0}$')
+            plt.title('fitting before and after the given edge position')
+            plt.legend()
 #         plt.savefig('step2_fitting_legend.pdf')
 #         plt.plot(t, BraggEdgeExponential(t,t0_f,est_alpha,est_sigma,a1_f,a2_f,a5_f,a6_f))
 
@@ -181,16 +185,18 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
     
         
     params = gmodel.make_params(t0=t0_f,sigma=sigma_f, alpha=alpha_f, a1=a1_f, a2=a2_f, a5=a5_f, a6=a6_f, bool_trasmission=bool_transmission)
-    print(bool_transmission)
+#     print(bool_transmission)
     
     first_guess = gmodel.eval(params, t=t)
-    plt.figure()
-    plt.plot(t,mybragg,label='data')
-    plt.plot(t,first_guess,'--b',label='initial model')
-    plt.title('initial BE with given parameters')
-    plt.xlabel('Wavelenght [Å]')
-    plt.ylabel('Transmission I/I$_{0}$')
-    plt.legend()
+    
+    if (bool_print):
+        plt.figure()
+        plt.plot(t,mybragg,label='data')
+        plt.plot(t,first_guess,'--b',label='initial model')
+        plt.title('initial BE with given parameters')
+        plt.xlabel('Wavelenght [Å]')
+        plt.ylabel('Transmission I/I$_{0}$')
+        plt.legend()
     #     plt.savefig('step3_fitting_legend.pdf')
     
     params['alpha'].vary = False
@@ -307,13 +313,14 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
 
     result7 = gmodel.fit(mybragg, params, t=t, nan_policy='propagate', method=method)
     
-#     print(params)    
-    print(result7.fit_report())
-    print(result7.covar)    
-    print('bool value, Boolean for whether error bars were estimated by fit.', result7.errorbars)
-    print(result7.ci_out) # print out the interval confidence
-#     print(result7.conf_interval())
-#     print(result7.ci_report()) # this crashes sometimes when the MinimizerException: Cannot determine Confidence Intervals without sensible uncertainty estimates
+    if (bool_print):    
+    #     print(params)    
+        print(result7.fit_report())
+        print(result7.covar)    
+        print('bool value, Boolean for whether error bars were estimated by fit.', result7.errorbars)
+        print(result7.ci_out) # print out the interval confidence
+    #     print(result7.conf_interval())
+    #     print(result7.ci_report()) # this crashes sometimes when the MinimizerException: Cannot determine Confidence Intervals without sensible uncertainty estimates
     
     
     t0_f=result7.best_values.get('t0')
@@ -346,10 +353,11 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
 
     fit_edge = B(t,t0_f,alpha_f,sigma_f, bool_transmission)
     
-    plt.figure()
-    plt.plot(t,fit_before,'o-')
-    plt.plot(t,fit_after,'o-')
-    plt.plot(t,fitted_data,'.-')
+    if (bool_print):
+        plt.figure()
+        plt.plot(t,fit_before,'o-')
+        plt.plot(t,fit_after,'o-')
+        plt.plot(t,fitted_data,'.-')
     
     index_t0 = find_nearest(t,t0_f)
     
@@ -368,8 +376,8 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
 
     for i in range(len(fitted_data)-1,0,-1): # here I am moving backwards
 #         print(i,(fitted_data[i]-fit_after[i]))
-        if (np.abs(fitted_data[i]-fit_after[i])>1e-3):            
-            pos_extrema.append(i)
+        if (np.abs(fitted_data[i]-fit_after[i])>1e-5 and i!=len(fitted_data)-1):            
+            pos_extrema.append(i+1)
             break
 
 #     # Attempt n.4 -- max and min before and after the estimated edge position, for the calibration sample works fine
@@ -382,40 +390,43 @@ def AdvancedBraggEdgeFitting(myspectrum, myrange, myTOF, est_pos, est_sigma, est
 
 ## For other attempts have a look in the SENJU branch
 
-    height = np.abs(mybragg[pos_extrema[0]]-mybragg[pos_extrema[1]])
-    
-    
-    plt.figure()
-    plt.plot(t, mybragg)
-    #     plt.plot(t, result7.init_fit, 'k--')
-    
-    plt.plot(t, result1.best_fit, '--', color='gray', label='intermediate steps')
-    plt.plot(t, result1.init_fit, '--', color='gray')
-    plt.plot(t, result2.best_fit, '--', color='gray')
-    plt.plot(t, result3.best_fit, '--', color='gray')
-    plt.plot(t, result4.best_fit, '--', color='gray')
-    plt.plot(t, result5.best_fit, '--', color='gray')
-    plt.plot(t, result6.best_fit, '--', color='gray')
-    plt.plot(t, result7.best_fit, 'r', linewidth='1.5', label='final fit')
-    plt.legend()
-    plt.xlabel('Wavelenght [Å]')
-    plt.ylabel('Transmission I/I$_{0}$')
-    
-    
-    
-    plt.plot(t0_f,result7.best_fit[index_t0],'ok')
-    plt.plot(t[pos_extrema[0]],result7.best_fit[pos_extrema[0]],'ok')
-    plt.plot(t[pos_extrema[1]],result7.best_fit[pos_extrema[1]],'ok')
-    plt.title('edge fitting and estimated edge position')
-    plt.show()
+    if (len(pos_extrema)==2):
+        height = np.abs(mybragg[pos_extrema[0]]-mybragg[pos_extrema[1]])
+    else:
+        height = 0.0
     
     if (bool_print):
-        print('first iteration: ' ,result1.fit_report())
-        print('second iteration: ', result2.fit_report())
-        print('third iteration: ', result3.fit_report())
-        print('fourth iteration: ', result4.fit_report())
-        print('fifth iteration: ', result5.fit_report())
-        print('sixth iteration: ', result6.fit_report())
+        plt.figure()
+        plt.plot(t, mybragg)
+        #     plt.plot(t, result7.init_fit, 'k--')
+
+        plt.plot(t, result1.best_fit, '--', color='gray', label='intermediate steps')
+        plt.plot(t, result1.init_fit, '--', color='gray')
+        plt.plot(t, result2.best_fit, '--', color='gray')
+        plt.plot(t, result3.best_fit, '--', color='gray')
+        plt.plot(t, result4.best_fit, '--', color='gray')
+        plt.plot(t, result5.best_fit, '--', color='gray')
+        plt.plot(t, result6.best_fit, '--', color='gray')
+        plt.plot(t, result7.best_fit, 'r', linewidth='1.5', label='final fit')
+        plt.legend()
+        plt.xlabel('Wavelenght [Å]')
+        plt.ylabel('Transmission I/I$_{0}$')
+
+
+
+        plt.plot(t0_f,result7.best_fit[index_t0],'ok')
+        plt.plot(t[pos_extrema[0]],result7.best_fit[pos_extrema[0]],'ok')
+        plt.plot(t[pos_extrema[1]],result7.best_fit[pos_extrema[1]],'ok')
+        plt.title('edge fitting and estimated edge position')
+        plt.show()
+    
+#     if (bool_print):
+#         print('first iteration: ' ,result1.fit_report())
+#         print('second iteration: ', result2.fit_report())
+#         print('third iteration: ', result3.fit_report())
+#         print('fourth iteration: ', result4.fit_report())
+#         print('fifth iteration: ', result5.fit_report())
+#         print('sixth iteration: ', result6.fit_report())
     
     
     return {'t0':t0_f, 'sigma':sigma_f, 'alpha':alpha_f, 'a1':a1_f, 'a2':a2_f,'a5':a5_f, 'a6':a6_f, 'final_result':result7, 'fitted_data':fitted_data, 'pos_extrema':pos_extrema, 'height':height}

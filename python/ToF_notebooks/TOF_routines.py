@@ -24,7 +24,7 @@ def binning (mysignal, newsize):
 def find_nearest(array, value):
     array = np.asarray(array)
     idx = (np.abs(array - value)).argmin()
-    return (idx)
+    return (int(idx))
 
 def find_first(array, value):
     for idx in range(0, len(array)):
