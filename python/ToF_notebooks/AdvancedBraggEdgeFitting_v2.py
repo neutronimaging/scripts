@@ -5,8 +5,8 @@ from scipy import optimize
 from scipy.optimize import curve_fit
 from scipy.special import erfc, erf
 #-------------------------------------------------------
-from scipy.misc import electrocardiogram #add by Monica 
-from scipy.signal import find_peaks #add by Monica 
+# from scipy.misc import electrocardiogram #add by Monica
+# from scipy.signal import find_peaks #add by Monica
 
 #-------------------------------------------------------
 from lmfit import Model
