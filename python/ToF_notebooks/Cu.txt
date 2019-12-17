@@ -1,4 +1,4 @@
-#lambda[A]  att.coeff.[cm-1]
+# lambda[A]  att.coeff.[cm-1]
 0.000       0.662
 0.027       0.667
 0.053       0.671
