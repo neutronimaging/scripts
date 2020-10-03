@@ -1,22 +1,35 @@
 import numpy as np
 import astropy.io.fits as fits
-from imageutils import *
+from amglib.imageutils import *
+from tifffile import imsave
+from tqdm import tqdm
 
-def readImages(fname,first,last, average = 'none', size = 5) :
+def readImages(fname,first,last, average = 'none', averageStack=False, stride=1, count=1, size = 5) :
     tmp = fits.getdata(fname.format(first),ext=0)
-    img = np.zeros([last-first+1,tmp.shape[0],tmp.shape[1]])
-    img[0]=tmp.astype(float)
-    
-    for idx in np.arange(first+1,last) :
-        img[idx-first]=fits.getdata(fname.format(idx+1),ext=0).astype(float)
+    img = np.zeros([(last-first+1) // stride,tmp.shape[0],tmp.shape[1]],dtype='float32')
+    img[0]=tmp.astype('float32')
+    if 1<count :
+        for idx in tqdm(np.arange(first,last,step=stride)) : 
+            img[(idx-first) // stride] =  readImages(fname,
+                                                     idx,
+                                                     idx+count-1,
+                                                     stride=1,
+                                                     count=1,
+                                                     size=size, 
+                                                     average=average,
+                                                     averageStack=True)
+    else :
+        for idx in np.arange(first,last,step=stride) : 
+            img[(idx-first) // stride] = fits.getdata(fname.format(idx),ext=0).astype('float32')
 
-    if average == 'mean' :
-        img = averageimage(img)
-    if average == 'weighted' :
-        img = weightedaverageimage(img,size=size)
-    if average == 'median' :
-        img = medianimage(img)
-        
+    
+    if averageStack == True :
+        if average == 'mean' :
+            img = averageimage(img)
+        if average == 'weighted' :
+            img = weightedaverageimage(img,size=size)
+        if average == 'median' :
+            img = medianimage(img)
         
     return img
 
@@ -46,3 +59,11 @@ def getSinograms(fmask,ob,dc,N,lines,stride=1, counts=1) :
     angles = angles[angleIdx]
     
     return sino,angles
+
+
+def saveTIFF(fname, img, startIndex=0) :
+    if len(img.shape)<3 :
+        imsave(fname,img, {'photometric': 'minisblack'})
+    else :
+        for idx in tqdm(range(img.shape[0])) :
+            imsave(fname.format(idx+startIndex),img[idx], {'photometric': 'minisblack'})
