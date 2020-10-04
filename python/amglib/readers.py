@@ -1,9 +1,22 @@
 import numpy as np
 import astropy.io.fits as fits
 from amglib.imageutils import *
-from tifffile import imsave
+import tifffile as tiff
 from tqdm import tqdm
 
+def readImage(fname) :
+    ext = fname.split('.')[-1]
+
+    img = []
+    
+    if ext == 'tif' :
+        img = tiff.imread(fname).astype('float32')
+    
+    if ext == 'fits' :
+        img = fits.getdata(fname,ext=0).astype('float32')
+        
+    return img
+        
 def readImages(fname,first,last, average = 'none', averageStack=False, stride=1, count=1, size = 5) :
     tmp = fits.getdata(fname.format(first),ext=0)
     img = np.zeros([(last-first+1) // stride,tmp.shape[0],tmp.shape[1]],dtype='float32')
@@ -20,7 +33,7 @@ def readImages(fname,first,last, average = 'none', averageStack=False, stride=1,
                                                      averageStack=True)
     else :
         for idx in np.arange(first,last,step=stride) : 
-            img[(idx-first) // stride] = fits.getdata(fname.format(idx),ext=0).astype('float32')
+            img[(idx-first) // stride] = readImage(fname.format(idx))
 
     
     if averageStack == True :
