@@ -204,3 +204,8 @@ def normalizeImage(img, ob, dc, neglog = True, doseROI = []) :
                 normed[idx] = D0/D*normed[idx]/ob
         
     return normed
+
+def imshowPercentile(img,ax,factor) :
+    m = img.mean()
+    s = img.std()
+    ax.imshow(img,vmin = m-s*factor, vmax = m+s*factor)
