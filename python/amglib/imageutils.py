@@ -192,7 +192,7 @@ def normalizeImage(img, ob, dc, neglog = True, doseROI = []) :
             normed = (D0/D)*normed/ob
     
     else :
-        for idx in range(norm.shape[0]) :
+        for idx in range(normed.shape[0]) :
             if len(doseROI) == 4 :
                 D = normed[idx,doseROI[0]:doseROI[2],doseROI[1]:doseROI[3]].mean()
             else :
