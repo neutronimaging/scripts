@@ -3,7 +3,7 @@ import scipy.ndimage.filters as flt2
 from scipy import ndimage
 import matplotlib.pyplot as plt
 
-def spotclean(img,size=5,threshold=0.95):
+def _spotclean(img,size=5,threshold=0.95):
     fimg=flt2.median_filter(img,size)
     dimg=np.abs(img-fimg)
     
@@ -17,6 +17,19 @@ def spotclean(img,size=5,threshold=0.95):
     cimg=mask*img+(1-mask)*fimg
     
     return cimg
+
+def spotclean(img,size=5,threshold=0.95) :
+    fimg = []
+    if len(img.shape)==2 :
+        fimg =  _spotclean(img,size,threshold)
+    else :
+        fimg = np.zeros(img.shape)
+        
+        for idx in range(img.shape[0]) :
+            fimg[idx]=_spotclean(img[idx],size,threshold)
+            
+    return fimg
+    
 
 def linepattern(segmentlength,f):
     """ Generates a 1D bilevel test pattern with increasing frequency
