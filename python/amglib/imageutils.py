@@ -209,7 +209,7 @@ def normalizeImage(img, ob, dc, neglog = True, doseROI = []) :
         else : 
             normed = np.zeros(img.shape)
             
-            for idx in range(normed.shape[0]) :
+            for idx in tqdm(range(normed.shape[0])) :
                 tmp = img[idx].copy() - dc
                 tmp[tmp<1]=1
                                 
@@ -223,12 +223,12 @@ def normalizeImage(img, ob, dc, neglog = True, doseROI = []) :
                 else :
                     normed[idx] = D0/D*tmp/ob
     else :        
-        if (ob.shape[0] not = normed.shape[0]) :
+        if (ob.shape[0] != normed.shape[0]) :
             print("Shape miss match, not same number of images in ob and img")
             return normed
         else :
             normed = np.zeros(img.shape)
-            for idx in range(normed.shape[0]) :
+            for idx in tqdm(range(normed.shape[0])) :
                 tmp        = img[idx].copy() - dc
                 tmp[tmp<1] = 1
                 

@@ -32,7 +32,7 @@ def readImages(fname,first,last, average = 'none', averageStack=False, stride=1,
                                                      average=average,
                                                      averageStack=True)
     else :
-        for idx in np.arange(first,last,step=stride) : 
+        for idx in tqdm(np.arange(first,last,step=stride)) : 
             img[(idx-first) // stride] = readImage(fname.format(idx))
 
     
