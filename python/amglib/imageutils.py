@@ -2,6 +2,7 @@ import numpy as np
 import scipy.ndimage.filters as flt2
 from scipy import ndimage
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 def _spotclean(img,size=5,threshold=0.95):
     fimg=flt2.median_filter(img,size)
