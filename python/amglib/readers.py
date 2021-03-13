@@ -18,7 +18,7 @@ def readImage(fname) :
     return img
         
 def readImages(fname,first,last, average = 'none', averageStack=False, stride=1, count=1, size = 5) :
-    tmp = fits.getdata(fname.format(first),ext=0)
+    tmp = readImage(fname.format(first))
     img = np.zeros([(last-first+1) // stride,tmp.shape[0],tmp.shape[1]],dtype='float32')
     img[0]=tmp.astype('float32')
     if 1<count :
@@ -32,7 +32,7 @@ def readImages(fname,first,last, average = 'none', averageStack=False, stride=1,
                                                      average=average,
                                                      averageStack=True)
     else :
-        for idx in np.arange(first,last,step=stride) : 
+        for idx in tqdm(np.arange(first,last,step=stride)) : 
             img[(idx-first) // stride] = readImage(fname.format(idx))
 
     
