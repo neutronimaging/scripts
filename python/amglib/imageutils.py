@@ -32,6 +32,64 @@ def spotclean(img,size=5,threshold=0.95) :
     return fimg
     
 
+def fill_spots(img,size=5) :
+    med = flt.median(img,selem=np.ones([size,1]))
+    med = flt.median(med,selem=np.ones([1,size]))
+    fm = img.copy()
+    fm[1:-2,1:-2] = med[1:-2,1:-2]
+    fm = np.maximum(fm,img)
+    
+    res=rec.reconstruction(fm,img,method='erosion')
+    
+    return res
+
+
+def fill_spots2(img,size=5) :
+    med = morph.dilation(img,selem=np.ones([size,size]))
+    fm = img.copy()
+    fm[1:-2,1:-2] = med[1:-2,1:-2]
+    
+    res=rec.reconstruction(fm,img,method='erosion')
+    
+    return res
+
+def _morph_spot_clean(img,th_peaks=0.95,th_holes=0.95,method=0) :
+    if method==0 :
+        fp=-fill_spots(-img)
+        fh=fill_spots(img)
+    else:
+        fp=-fill_spots2(-img)
+        fh=fill_spots2(img)
+    
+    dh=np.abs(img-fh)
+    dp=np.abs(img-fp)
+    
+    hh,ah=np.histogram(dh.ravel(),bins=1024);
+    hp,ap=np.histogram(dp.ravel(),bins=1024);
+    chh=np.cumsum(hh)
+    chp=np.cumsum(hp)
+    thh=ah[np.argmax(th_holes<chh/chh[-1])]
+    thp=ap[np.argmax(th_peaks<chp/chp[-1])]
+    
+    res=img.copy()
+    res[thh<dh]=fh[thh<dh]
+    res[thp<dp]=fp[thp<dp]
+    
+    return res
+
+def morph_spot_clean(img,th_peaks=0.95,th_holes=0.95,method=0) :
+    if (len(img.shape) == 2 ) :
+        res = _morph_spot_clean(img,th_peaks,th_holes,method)
+    else :
+        res = np.zeros_as(img)
+        for idx in range(img.shape[0]) :
+            res[idx] = _morph_spot_clean(img[idx],th_peaks,th_holes,method)
+    
+    return res
+
+
+
+
 def linepattern(segmentlength,f):
     """ Generates a 1D bilevel test pattern with increasing frequency
     
