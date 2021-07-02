@@ -2,7 +2,7 @@ import numpy as np
 import astropy.io.fits as fits
 from amglib.imageutils import *
 import tifffile as tiff
-from tqdm import tqdm
+from tqdm.notebook import tqdm
 
 def readImage(fname) :
     ext = fname.split('.')[-1]
@@ -76,7 +76,7 @@ def getSinograms(fmask,ob,dc,N,lines,stride=1, counts=1) :
 
 def saveTIFF(fname, img, startIndex=0) :
     if len(img.shape)<3 :
-        imsave(fname,img, {'photometric': 'minisblack'})
+        tiff.imsave(fname,img, {'photometric': 'minisblack'})
     else :
         for idx in tqdm(range(img.shape[0])) :
-            imsave(fname.format(idx+startIndex),img[idx], {'photometric': 'minisblack'})
+            tiff.imsave(fname.format(idx+startIndex),img[idx], {'photometric': 'minisblack'})
