@@ -1,0 +1,6 @@
+file: introduction.md
+sections:
+- file: PlotLegends
+- file: ImshowScales
+- file: CurveFitting
+- file: HistgramRecipes
