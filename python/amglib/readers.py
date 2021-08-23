@@ -76,7 +76,7 @@ def getSinograms(fmask,ob,dc,N,lines,stride=1, counts=1) :
 
 def saveTIFF(fname, img, startIndex=0) :
     if len(img.shape)<3 :
-        tiff.imsave(fname,img, {'photometric': 'minisblack'})
+        tiff.imsave(fname,np.squeeze(img), {'photometric': 'minisblack'})
     else :
         for idx in tqdm(range(img.shape[0])) :
-            tiff.imsave(fname.format(idx+startIndex),img[idx], {'photometric': 'minisblack'})
+            tiff.imsave(fname.format(idx+startIndex),np.squeeze(img[idx]), {'photometric': 'minisblack'})
