@@ -1,6 +1,8 @@
-file: introduction.md
+format: jb-article
+root: introduction
 sections:
-- file: PlotLegends
-- file: ImshowScales
 - file: CurveFitting
-- file: HistgramRecipes
+- file: ImshowScales
+- file: PlotLegends
+- file: PlottingFonts
+- file: HistogramRecipes
