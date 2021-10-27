@@ -80,3 +80,28 @@ def saveTIFF(fname, img, startIndex=0) :
     else :
         for idx in tqdm(range(img.shape[0])) :
             tiff.imsave(fname.format(idx+startIndex),np.squeeze(img[idx]), {'photometric': 'minisblack'})
+
+def read_fits_meta_data(filename,parlist = []) :
+    hdul = fits.open(filename)
+    data = {}
+    for par in parlist :
+        data[par] = hdul[0].header[par]
+        
+    return data
+
+def read_fits_meta_data2(filemask,first,last,parlist = []) :
+    
+    data = {}
+    
+    for par in parlist :
+        data[par]= []
+        
+    for idx in np.arange(first,last+1) :
+        hdul = fits.open(filemask.format(idx))
+    
+        for par in parlist :
+            data[par].append(hdul[0].header[par])
+            
+        hdul.close()
+        
+    return data
