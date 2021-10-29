@@ -3,6 +3,7 @@ import scipy.ndimage.filters as flt2
 from scipy import ndimage
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+import skimage.filters as flt
 import skimage.morphology as morph
 import skimage.morphology.greyreconstruct as rec
 
