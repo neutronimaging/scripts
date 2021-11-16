@@ -88,3 +88,14 @@ def color_map_index_transform(img1,img2,N=256, colormixer = [0,1,2]) :
     
     idximg = 65535*img1 + 255 * img2
     return idximg, cmap
+
+def colormap_fuse(img1, img2, colormixer = [0,1,2]) :
+    res=np.zeros([img1.shape[0],img1.shape[1],3])
+    a=(img1-np.min(img1))/(np.max(img1)-np.min(img1))
+    b=(img2-np.min(img2))/(np.max(img2)-np.min(img2))
+    res[:,:,colormixer[0]]=a
+    res[:,:,colormixer[1]]=b
+    res[:,:,colormixer[2]]=(a+b)/2
+    
+    return res
+    
