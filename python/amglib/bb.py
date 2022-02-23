@@ -215,4 +215,31 @@ def normalize(img,ob,dc, dose_roi=None,logarithm=True) :
         n=-np.log(n)
         
     return n
+
+def remove_dc(img,dc) :
+    img = img - dc
+    img[img<1]=1
+    return img
+
+def D(img, roi) :
+    return np.median(img[roi[0]:roi[2],roi[1]:roi[3]],axis=0).mean()
+
+def normalization_with_BB(sample,ob,dc,bbsample,bbob,ssample,sob,roi,tau) :
+    sample   = remove_dc(sample,dc)
+    ob       = remove_dc(ob,dc)
+    bbsample = remove_dc(bbsample,dc)
+    bbob     = remove_dc(bbob,dc)
+    
+    dsample   = D(sample,roi)
+    dob       = D(ob,roi)
+    dbbsample = D(bbsample,roi)
+    dbbob     = D(bbob,roi)
+    dssample  = D(ssample,roi)
+    dsob      = D(sob,roi)
+    
+    ds = (dsample/(tau*(dbbsample-(1-1/tau)*dssample)))
+    do = (dob/(tau*(dbbob-(1-1/tau)*dsob)))
+    corrected = (sample - ssample*ds)/(ob - sob*do) * (do/ds)
+    
+    return corrected
     
