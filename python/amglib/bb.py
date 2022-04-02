@@ -64,7 +64,7 @@ def get_black_bodies(img, greythres,areas = [2000,4000],R=2) :
     
     return mask,r,c,df
 
-def get_blackbodies_by_templatematching(img,template,threshold,R=10) :
+def get_blackbodies_by_templatematching(img,template,threshold,R=10,area_th=[0.4,0.6]) :
     """
     Finds the black body dots in a image using template matching.
     
@@ -87,13 +87,13 @@ def get_blackbodies_by_templatematching(img,template,threshold,R=10) :
         Data frame containing the information about the detected dots 
     
     """
-    tm = threshold<match_template(img, template,pad_input=True)
-    lbb=label(tm)
+    tm = match_template(img, template,pad_input=True)
+    lbb=label(threshold<tm)
     mask = np.zeros(lbb.shape)
     regions=[]
 
     area=(template<filt.threshold_otsu(template)).sum()
-    areas = [0.4*area, 0.6*area]
+    areas = [area_th[0]*area, area_th[1]*area]
     
     for region in regionprops(lbb):
         if (region.area<areas[0]) or (areas[1]<region.area) :
@@ -113,7 +113,7 @@ def get_blackbodies_by_templatematching(img,template,threshold,R=10) :
     r,c = np.where(0<mask)
     df = pd.DataFrame.from_dict(regions)
     
-    return mask,r,c,df
+    return mask,r,c,df,tm
 
 
 def compute_scatter_image(img,r,c) :
@@ -217,8 +217,9 @@ def normalize(img,ob,dc, dose_roi=None,logarithm=True) :
     return n
 
 def remove_dc(img,dc) :
-    img = img - dc
-    img[img<1]=1
+    if dc != 0 :
+        img = img - dc
+        img[img<1]=1
     return img
 
 def D(img, roi) :

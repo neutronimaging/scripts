@@ -71,12 +71,13 @@ def _morph_spot_clean(img,th_peaks=0.95,th_holes=0.95,method=0) :
     hp,ap=np.histogram(dp.ravel(),bins=1024);
     chh=np.cumsum(hh)
     chp=np.cumsum(hp)
-    thh=ah[np.argmax(th_holes<chh/chh[-1])]
-    thp=ap[np.argmax(th_peaks<chp/chp[-1])]
-    
     res=img.copy()
-    res[thh<dh]=fh[thh<dh]
-    res[thp<dp]=fp[thp<dp]
+    if (th_holes < 1) :
+        thh=ah[np.argmax(th_holes<chh/chh[-1])]
+        res[thh<dh]=fh[thh<dh]
+    if (th_peaks < 1) :
+        thp=ap[np.argmax(th_peaks<chp/chp[-1])]
+        res[thp<dp]=fp[thp<dp]
     
     return res
 
