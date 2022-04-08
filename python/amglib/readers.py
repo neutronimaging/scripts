@@ -4,7 +4,14 @@ from amglib.imageutils import *
 import tifffile as tiff
 from tqdm.notebook import tqdm
 
-def readImage(fname) :
+def read_image(fname) :
+''' Reads a single image in fits or tiff format
+    Arguments:
+    fname - full filename of the image to read
+    
+    Returns:
+    A 2D numpy array in single precision float
+'''
     ext = fname.split('.')[-1]
 
     img = []
@@ -16,8 +23,23 @@ def readImage(fname) :
         img = fits.getdata(fname,ext=0).astype('float32')
         
     return img
-        
-def readImages(fname,first,last, average = 'none', averageStack=False, stride=1, count=1, size = 5) :
+
+def read_images(fname,first,last, average = 'none', averageStack=False, stride=1, count=1, size = 5) :
+    ''' Reads a series of images into either a 3D stack or as a single image representing the average
+    
+        Arguments:
+            fname   - file name mask the indexing is formatted using the {0:0N} format where N is the number of digits in the file index.
+            first   - first image to read
+            last    - last image to read
+            average - averaging method valid values: 'mean','weighted', and 'median' 
+            averageStack - compute an average of the images using the settings stride, count, average and size.
+            stride  - stride beween observations, mostly the same as count
+            count   - number on images to average
+            size    - size of the window used to compute local statistics in each slice
+    
+        Returns:
+        Either a 2D or 3D numpy array in single precision float depending on the averageStack value.
+    '''
     tmp = readImage(fname.format(first))
     img = np.zeros([(last-first+1) // stride,tmp.shape[0],tmp.shape[1]],dtype='float32')
     img[0]=tmp.astype('float32')
@@ -46,7 +68,10 @@ def readImages(fname,first,last, average = 'none', averageStack=False, stride=1,
         
     return img
 
-def getSinograms(fmask,ob,dc,N,lines,stride=1, counts=1) :
+def get_sinograms(fmask,ob,dc,N,lines,stride=1, counts=1) :
+    '''Prepares sinograms from the provided images 
+    
+    '''
     img = fits.getdata(fmask.format(1),ext=0)
     sino = np.zeros([len(lines),N,img.shape[1]])
     
@@ -74,30 +99,60 @@ def getSinograms(fmask,ob,dc,N,lines,stride=1, counts=1) :
     return sino,angles
 
 
-def saveTIFF(fname, img, startIndex=0) :
+def save_TIFF(fname, img, startIndex=0) :
+    '''Save a numpy array as tiff image
+    
+    Arguments:
+        fname - the file name or mask. A mask is used when a 3D array is provided.
+        img   - the numpy array either 2D or 3D
+        startIndex - the first file index when a 3D array is saved.
+        
+    Returns:
+        the function doesn't return anything
+    '''
     if len(img.shape)<3 :
         tiff.imsave(fname,np.squeeze(img), {'photometric': 'minisblack'})
     else :
         for idx in tqdm(range(img.shape[0])) :
             tiff.imsave(fname.format(idx+startIndex),np.squeeze(img[idx]), {'photometric': 'minisblack'})
 
-def read_fits_meta_data(filename,parlist = []) :
-    hdul = fits.open(filename)
+def read_fits_meta_data(fname,parlist = []) :
+    '''Reads selected meta data from a fits file
+    
+    Arguments:
+        fname   - full file name of the fits file
+        parlist - a list of strings to select the meta data tags.
+        
+    Returns:
+        A dict containing the requested values
+    '''
+    hdul = fits.open(fname)
     data = {}
     for par in parlist :
         data[par] = hdul[0].header[par]
         
     return data
 
-def read_fits_meta_data2(filemask,first,last,parlist = []) :
+def read_fits_meta_data2(fmask,first,last,parlist = []) :
+    '''Reads selected meta data from a series of fits files
     
+    Arguments:
+        fmask   - file name mask of the fits file the index template is using the format {0:0N} where N is the number of digits in the index
+        first   - first file index in the series
+        last    - last file index in the series
+        parlist - a list of strings to select the meta data tags.
+        
+        
+    Returns:
+        A dict containing lists of the requested values from each file
+    '''
     data = {}
     
     for par in parlist :
         data[par]= []
         
     for idx in np.arange(first,last+1) :
-        hdul = fits.open(filemask.format(idx))
+        hdul = fits.open(fmask.format(idx))
     
         for par in parlist :
             data[par].append(hdul[0].header[par])
