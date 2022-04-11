@@ -5,13 +5,13 @@ import tifffile as tiff
 from tqdm.notebook import tqdm
 
 def read_image(fname) :
-''' Reads a single image in fits or tiff format
-    Arguments:
-    fname - full filename of the image to read
+    ''' Reads a single image in fits or tiff format
+        Arguments:
+        fname - full filename of the image to read
     
-    Returns:
-    A 2D numpy array in single precision float
-'''
+        Returns:
+        A 2D numpy array in single precision float
+    '''
     ext = fname.split('.')[-1]
 
     img = []
@@ -40,12 +40,12 @@ def read_images(fname,first,last, average = 'none', averageStack=False, stride=1
         Returns:
         Either a 2D or 3D numpy array in single precision float depending on the averageStack value.
     '''
-    tmp = readImage(fname.format(first))
+    tmp = read_image(fname.format(first))
     img = np.zeros([(last-first+1) // stride,tmp.shape[0],tmp.shape[1]],dtype='float32')
     img[0]=tmp.astype('float32')
     if 1<count :
-        for idx in tqdm(np.arange(first,last,step=stride)) : 
-            img[(idx-first) // stride] =  readImages(fname,
+        for idx in tqdm(np.arange(first,last+1,step=stride)) : 
+            img[(idx-first) // stride] =  read_images(fname,
                                                      idx,
                                                      idx+count-1,
                                                      stride=1,
@@ -54,8 +54,8 @@ def read_images(fname,first,last, average = 'none', averageStack=False, stride=1
                                                      average=average,
                                                      averageStack=True)
     else :
-        for idx in tqdm(np.arange(first,last,step=stride)) : 
-            img[(idx-first) // stride] = readImage(fname.format(idx))
+        for idx in tqdm(np.arange(first,last+1,step=stride)) : 
+            img[(idx-first) // stride] = read_image(fname.format(idx))
 
     
     if averageStack == True :
@@ -127,9 +127,13 @@ def read_fits_meta_data(fname,parlist = []) :
         A dict containing the requested values
     '''
     hdul = fits.open(fname)
+    hdul.verify('silentfix')
     data = {}
     for par in parlist :
-        data[par] = hdul[0].header[par]
+        value = hdul[0].header[par]
+        if isinstance(value,str) and value[0]=='b' :
+            value=value[2:-1]
+        data[par] = value
         
     return data
 
@@ -153,9 +157,13 @@ def read_fits_meta_data2(fmask,first,last,parlist = []) :
         
     for idx in np.arange(first,last+1) :
         hdul = fits.open(fmask.format(idx))
+        hdul.verify('silentfix')
     
         for par in parlist :
-            data[par].append(hdul[0].header[par])
+            value = hdul[0].header[par]
+            if isinstance(value,str) and value[0]=='b' :
+                value=value[2:-1]
+            data[par].append(value)
             
         hdul.close()
         
