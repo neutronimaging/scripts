@@ -10,8 +10,8 @@ def remove_axisticks(ax) :
     ax.set_xticks([])
     ax.set_yticklabels([])
     ax.set_yticks([])
-    
-    
+
+
 def panel_labels(axes,labels, fontsize = 14, posx=0.5,posy=-0.1) :
     for ax,label in zip(axes,labels) :
         ax.text(posx, posy, label, transform=ax.transAxes, fontsize=fontsize, ha='center',va='center') 
@@ -45,7 +45,7 @@ def magnifyRegion(img,roi, figsize, ax=None, cmap='gray',vmin=0,vmax=0,title='Or
     if ticksOff :
         remove_axisticks(ax[0])
         remove_axisticks(ax[1])
-    
+
 def showHitMap(gt,pr,ax=None) :
     if ax is None :
         fig, ax = plt.subplots(1,2,figsize=(12,4))
@@ -67,7 +67,7 @@ def showHitMap(gt,pr,ax=None) :
     ax[0].set_yticklabels(['Negative','Positive']);
     ax[0].set_ylabel('Ground Truth')
     ax[0].set_xlabel('Prediction');
-    
+
 def showHitCases(gt,pr,ax=None, cmap='viridis') :
     if ax is None :
         fig,ax = plt.subplots(1,4,figsize=(15,5))
@@ -83,7 +83,7 @@ def showHitCases(gt,pr,ax=None, cmap='viridis') :
     
     ax[3].imshow((1-gt)*(1-pr),cmap=cmap,interpolation='none'), 
     ax[3].set_title('True Negative')
-    
+
 
 def color_map_index_transform(img1,img2,N=256, colormixer = [0,1,2]) :
     carray = np.zeros([N*N,3])
@@ -105,4 +105,4 @@ def colormap_fuse(img1, img2, colormixer = [0,1,2]) :
     res[:,:,colormixer[2]]=(a+b)/2
     
     return res
-    
+
