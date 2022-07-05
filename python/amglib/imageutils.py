@@ -33,7 +33,7 @@ def spotclean(img,size=5,threshold=0.95) :
             fimg[idx]=_spotclean(img[idx],size,threshold)
             
     return fimg
-    
+
 
 def fill_spots(img,size=5) :
     med = flt.median(img,selem=np.ones([size,1]))
@@ -71,12 +71,13 @@ def _morph_spot_clean(img,th_peaks=0.95,th_holes=0.95,method=0) :
     hp,ap=np.histogram(dp.ravel(),bins=1024);
     chh=np.cumsum(hh)
     chp=np.cumsum(hp)
-    thh=ah[np.argmax(th_holes<chh/chh[-1])]
-    thp=ap[np.argmax(th_peaks<chp/chp[-1])]
-    
     res=img.copy()
-    res[thh<dh]=fh[thh<dh]
-    res[thp<dp]=fp[thp<dp]
+    if (th_holes < 1) :
+        thh=ah[np.argmax(th_holes<chh/chh[-1])]
+        res[thh<dh]=fh[thh<dh]
+    if (th_peaks < 1) :
+        thp=ap[np.argmax(th_peaks<chp/chp[-1])]
+        res[thp<dp]=fp[thp<dp]
     
     return res
 
@@ -128,7 +129,7 @@ def linepattern2d(segmentwidth,segmentheight,f,margin=False) :
         y=[x,x]
     
     return np.repeat(y,segmentheight,axis=0)
-    
+
 def contraststeps(neutrons=100,scalex=20,scaley=50) :
     """ Generates a constrst step wedge
       
@@ -151,7 +152,7 @@ def neutronimage(img,sigma,photons,photonstrength):
         nimg=np.random.poisson(nimg*photons)/photons*photonstrength
     
     return nimg
-    
+
 def generatespots(size, fraction, width, amplitude,bias) :
     if (len(size)==1) :
         img=(np.random.uniform(0.0,1.0,(size,size))<fraction)*1.0
@@ -161,30 +162,30 @@ def generatespots(size, fraction, width, amplitude,bias) :
     img=(img/img.max())*amplitude+bias
     
     return img
-    
+
 def buildimagestack(size,nimg,ncount) :
     imgs=np.ones(shape=[size,size,nimg])*ncount
     for i in np.arange(nimg) :
         imgs[:,:,i] = neutronimage(imgs[:,:,i],1.0,2.0,1.0)
     
     return imgs
-    
+
 def singleimage(size,ncount) :
     img=np.ones(shape=[size,size])*ncount
     img = neutronimage(img,1.0,2.0,1.0)
     
     return img
-    
+
 def averageimage(imgs, axis=0) :
     img=imgs.mean(axis=axis)
     
     return img
-    
+
 def medianimage(imgs,axis=0) :
     img=np.median(imgs,axis=axis)
     
     return img
-    
+
 def weightedaverageimage(imgs,size) :
     dims=imgs.shape
     w=np.zeros(imgs.shape)
@@ -212,7 +213,7 @@ def weightedaverageimage(imgs,size) :
     img=imgs.sum(axis=0)
     
     return img
-    
+
 def sigmaclipaverageimage(imgs,fact=2) :
     dims=imgs.shape
     img = np.zeros(dims[0:2])
@@ -225,7 +226,7 @@ def sigmaclipaverageimage(imgs,fact=2) :
                 img[x,y]=img[x-1,y]
             
     return img
-    
+
 def periodicSpotPattern(dims, width, distance, amplitude) :
     x,y = np.meshgrid(range(0,dims[1]),range(0,dims[0]))
     dots=amplitude*(np.mod(x,distance)==0)*(np.mod(y,distance)==0)
@@ -234,7 +235,7 @@ def periodicSpotPattern(dims, width, distance, amplitude) :
     fdots=amplitude/m*fdots
     
     return fdots    
-    
+
 def SNR(data,reference) :
     MSE = np.mean((data-reference)**2)
     s=np.sqrt(MSE)
