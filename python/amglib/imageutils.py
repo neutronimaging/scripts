@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import skimage.filters as flt
 import skimage.morphology as morph
-import skimage.morphology.greyreconstruct as rec
+#import skimage.morphology.greyreconstruct as rec
 
 def _spotclean(img,size=5,threshold=0.95):
     fimg=flt2.median_filter(img,size)
@@ -36,23 +36,23 @@ def spotclean(img,size=5,threshold=0.95) :
 
 
 def fill_spots(img,size=5) :
-    med = flt.median(img,selem=np.ones([size,1]))
-    med = flt.median(med,selem=np.ones([1,size]))
+    med = flt.median(img,footprint=np.ones([size,1]))
+    med = flt.median(med,footprint=np.ones([1,size]))
     fm = img.copy()
     fm[1:-2,1:-2] = med[1:-2,1:-2]
     fm = np.maximum(fm,img)
     
-    res=rec.reconstruction(fm,img,method='erosion')
+    res=morph.reconstruction(fm,img,method='erosion')
     
     return res
 
 
 def fill_spots2(img,size=5) :
-    med = morph.dilation(img,selem=np.ones([size,size]))
+    med = morph.dilation(img,footprint=np.ones([size,size]))
     fm = img.copy()
     fm[1:-2,1:-2] = med[1:-2,1:-2]
     
-    res=rec.reconstruction(fm,img,method='erosion')
+    res=morph.reconstruction(fm,img,method='erosion')
     
     return res
 
@@ -85,14 +85,11 @@ def morph_spot_clean(img,th_peaks=0.95,th_holes=0.95,method=0) :
     if (len(img.shape) == 2 ) :
         res = _morph_spot_clean(img,th_peaks,th_holes,method)
     else :
-        res = np.zeros_as(img)
+        res = np.zeros(img.shape)
         for idx in range(img.shape[0]) :
             res[idx] = _morph_spot_clean(img[idx],th_peaks,th_holes,method)
     
     return res
-
-
-
 
 def linepattern(segmentlength,f):
     """ Generates a 1D bilevel test pattern with increasing frequency
