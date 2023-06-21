@@ -85,7 +85,7 @@ def morph_spot_clean(img,th_peaks=0.95,th_holes=0.95,method=0) :
     if (len(img.shape) == 2 ) :
         res = _morph_spot_clean(img,th_peaks,th_holes,method)
     else :
-        res = np.zeros_as(img)
+        res = np.zeros(img.shape)
         for idx in range(img.shape[0]) :
             res[idx] = _morph_spot_clean(img[idx],th_peaks,th_holes,method)
     
