@@ -56,7 +56,7 @@ def fill_spots2(img,size=5) :
     
     return res
 
-def _morph_spot_clean(img,th_peaks=0.95,th_holes=0.95,method=0) :
+def _morph_spot_clean(img,th_peaks=0.95,th_holes=0.95,method=1) :
     if method==0 :
         fp=-fill_spots(-img)
         fh=fill_spots(img)
@@ -81,7 +81,7 @@ def _morph_spot_clean(img,th_peaks=0.95,th_holes=0.95,method=0) :
     
     return res
 
-def morph_spot_clean(img,th_peaks=0.95,th_holes=0.95,method=0) :
+def morph_spot_clean(img,th_peaks=0.95,th_holes=0.95,method=1) :
     if (len(img.shape) == 2 ) :
         res = _morph_spot_clean(img,th_peaks,th_holes,method)
     else :
