@@ -1,6 +1,6 @@
 import numpy as np
 import astropy.io.fits as fits
-from amglib.imageutils import *
+from .imageutils import *
 import tifffile as tiff
 from tqdm.notebook import tqdm
 
