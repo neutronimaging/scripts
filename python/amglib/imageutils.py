@@ -309,6 +309,21 @@ def normalizeImage(img, ob, dc, neglog = True, doseROI = []) :
 
     return normed
 
+def compressed_histogram(x,bins, percentile=0.99) :
+    ratio = 0
+    vmin = x.min()
+    vmax = x.max()
+    
+    while ratio < 0.8:
+        h,a = np.histogram(x.ravel(),bins=bins, range=(vmin,vmax))
+        ch  = np.cumsum(h)
+        ch  = ch / ch[-1]
+        idx = np.min(np.where(0.999<ch))
+        vmax = a[idx+bins//20]
+        ratio = float(idx)/h.shape[0]
+        
+    return h,a
+
 def imshowPercentile(img,ax,factor) :
     m = img.mean()
     s = img.std()
