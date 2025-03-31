@@ -3,6 +3,8 @@ import astropy.io.fits as fits
 from .imageutils import *
 import tifffile as tiff
 from tqdm.notebook import tqdm
+import re
+from glob import glob
 
 def read_image(fname) :
     ''' Reads a single image in fits or tiff format
@@ -168,3 +170,38 @@ def read_fits_meta_data2(fmask,first,last,parlist = []) :
         hdul.close()
         
     return data
+
+
+def make_file_mask(filename) :
+    '''Creates a file mask from a filename with a number index
+    
+    Arguments:
+        filename - A filename with the pattern xyz_#N#.fits. The #N# is the index of the file with the N padded with zeros.
+        
+    Returns:
+        A file mask with the index formatted as {0:0Nd} where N is the number of digits in the index.
+    '''
+    match = re.search(r'_(0*\d+)(\.fits)$', filename)
+    if match:
+        original_number = match.group(1)  # Extract the original number with padding
+        num_digits = len(original_number)  # Determine the length of the original padding
+        return re.sub(r'_(0*\d+)(\.fits)$', f'_{{0:0{num_digits}d}}\\2', filename)
+    return filename  # Return unchanged if no match found
+
+def list_matching_files(directory, pattern="file_*.ext"):
+    return sorted(glob(f"{directory}/{pattern}"))
+
+def find_first_last_indices(filenames, pattern=r'mask_(\d{4})\.fits'):
+    indices = []
+
+    for filename in filenames:
+        filename = filename.split('/')[-1]
+#         match = re.match(pattern, filename)
+        match=re.search(r'_(0*\d+)(\.fits)$', filename)
+        if match:
+            indices.append(int(match.group(1)))  # Convert to integer
+
+    if indices:
+        return min(indices), max(indices)
+    else:
+        return None, None  # If no matches found
