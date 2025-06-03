@@ -181,23 +181,28 @@ def make_file_mask(filename) :
     Returns:
         A file mask with the index formatted as {0:0Nd} where N is the number of digits in the index.
     '''
-    match = re.search(r'_(0*\d+)(\.fits)$', filename)
+    pattern = r'_(0*\d+)(\.'+filename.split('.')[-1]+')$'
+
+    match = re.search(pattern, filename)
     if match:
         original_number = match.group(1)  # Extract the original number with padding
         num_digits = len(original_number)  # Determine the length of the original padding
-        return re.sub(r'_(0*\d+)(\.fits)$', f'_{{0:0{num_digits}d}}\\2', filename)
+        return re.sub(pattern, f'_{{0:0{num_digits}d}}\\2', filename)
     return filename  # Return unchanged if no match found
 
 def list_matching_files(directory, pattern="file_*.ext"):
     return sorted(glob(f"{directory}/{pattern}"))
 
-def find_first_last_indices(filenames, pattern=r'mask_(\d{4})\.fits'):
+def find_first_last_indices(filenames):
     indices = []
+    
+    ext = filenames[0].split('.')[-1]
+
+    pattern=r'_(0*\d+)(\.'+ext+')$'
 
     for filename in filenames:
         filename = filename.split('/')[-1]
-#         match = re.match(pattern, filename)
-        match=re.search(r'_(0*\d+)(\.fits)$', filename)
+        match=re.search(pattern, filename)
         if match:
             indices.append(int(match.group(1)))  # Convert to integer
 

@@ -50,14 +50,16 @@ class FileSelector:
 
     def analyze_file(self, filename):
         # Implement your analysis logic here
-        fname      = self.file_chooser.selected
-        path       = os.path.dirname(fname)
-        ext        = fname.split('.')[-1]
-        flist      = rd.list_matching_files(path,r'_'.join(fname.split('/')[-1].split('_')[:-1])+'*.'+ext)
-        fmask      = rd.make_file_mask(fname)
-        first,last = rd.find_first_last_indices(flist,fmask.split('/')[-1])
+        selected_file      = self.file_chooser.selected
+        path       = os.path.dirname(selected_file)
+        fname      = os.path.basename(selected_file)
 
-        self._fileinfo = { "name" : fname,
+        ext        = selected_file.split('.')[-1]
+        flist      = rd.list_matching_files(path,r'_'.join(fname.split('_')[:-1])+'*.'+ext)
+        fmask      = rd.make_file_mask(selected_file)
+        first,last = rd.find_first_last_indices(flist)
+
+        self._fileinfo = { "name" : selected_file,
                            "mask" : fmask,
                            "path" : path,
                            "ext"  : ext,
@@ -67,7 +69,3 @@ class FileSelector:
 
     def display(self):
         display(self.file_chooser)
-
-# Usage:
-analyzer = FileSelector()
-analyzer.display()

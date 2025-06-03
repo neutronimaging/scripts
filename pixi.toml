@@ -1,6 +1,6 @@
 [workspace]
 authors = ["Anders Kaestner <anders.kaestner@psi.ch>"]
-channels = ["conda-forge"]
+channels = ["astra-toolbox", "nvidia", "conda-forge"]
 name = "scripts"
 platforms = ["linux-64", "osx-64", "win-64"]
 version = "0.1.0"
@@ -39,3 +39,6 @@ trame = "*"
 trame-vtk = "*"
 trame-vuetify = "*"
 plotly = "*"
+
+[target.win-64.dependencies]
+astra-toolbox = "*"
