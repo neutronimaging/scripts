@@ -2,7 +2,7 @@
 authors = ["Anders Kaestner <anders.kaestner@psi.ch>"]
 channels = ["astra-toolbox", "nvidia", "conda-forge"]
 name = "scripts"
-platforms = ["linux-64", "osx-64", "win-64"]
+platforms = ["linux-64", "osx-arm64", "osx-64", "win-64"] 
 version = "0.1.0"
 
 [tasks]
