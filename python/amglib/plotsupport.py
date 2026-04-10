@@ -16,7 +16,11 @@ def remove_axisticks(ax) :
     ax.set_yticks([])
 
 
-def panel_labels(axes,labels, fontsize = 14, posx=0.5,posy=-0.1) :
+def panel_labels(axes,labels, fontsize = None, posx=0.5,posy=-0.1) :
+
+    if fontsize is None:
+        fontsize = plt.rcParams["font.size"]
+
     for ax,label in zip(axes,labels) :
         ax.text(posx, posy, label, transform=ax.transAxes, fontsize=fontsize, ha='center',va='center') 
 
