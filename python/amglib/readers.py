@@ -117,7 +117,7 @@ def save_TIFF(fname, img, startIndex=0) :
         tiff.imwrite(fname,np.squeeze(img), photometric='minisblack')
     else :
         for idx in tqdm(range(img.shape[0])) :
-            tiff.imsave(fname.format(idx+startIndex),np.squeeze(img[idx]), {'photometric': 'minisblack'})
+            tiff.imwrite(fname.format(idx+startIndex), np.squeeze(img[idx]), photometric='minisblack')
 
 def read_fits_meta_data(fname,parlist = []) :
     '''Reads selected meta data from a fits file
