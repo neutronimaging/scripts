@@ -16,7 +16,11 @@ def remove_axisticks(ax) :
     ax.set_yticks([])
 
 
-def panel_labels(axes,labels, fontsize = 14, posx=0.5,posy=-0.1) :
+def panel_labels(axes,labels, fontsize = None, posx=0.5,posy=-0.1) :
+
+    if fontsize is None:
+        fontsize = plt.rcParams["font.size"]
+
     for ax,label in zip(axes,labels) :
         ax.text(posx, posy, label, transform=ax.transAxes, fontsize=fontsize, ha='center',va='center') 
 
@@ -140,3 +144,63 @@ def goldenCM(N,increment=1.0,s=0.5,v=0.7,bg=0) :
     if bg is not None : rgb[0,:]=bg    
     cm = ListedColormap(rgb) 
     return cm
+
+import matplotlib.patches as patches
+
+def plot_profiles(x, L, rois, labels = None, figsize = None, vmin=None, vmax=None,cmap='viridis',xlabel=r"$\lambda$ [Å]",ylabel='Mean Intensity') :
+    """Plots the mean profile of the given ROIs in the given data.
+    Parameters
+    ----------
+    x : np.ndarray
+        The data to plot, with shape (N,H,W).
+    L : np.ndarray
+        The x-axis values, with shape (N,).
+    rois : list of list
+        The ROIs to plot, given as list of [x0,y0,x1,y1].
+    labels : list of str, optional
+        The labels for the ROIs, by default None.
+    figsize : list, optional
+        The figure size, by default None.
+    vmin : float, optional
+        The minimum value for the color scale, by default None.
+    vmax : float, optional
+        The maximum value for the color scale, by default None.
+    cmap : str, optional
+        The colormap to use, by default 'viridis'.
+    xlabel : str, optional
+        The label for the x-axis, by default r"$\lambda$ [Å]".
+    ylabel : str, optional
+        The label for the y-axis, by default 'Mean Intensity'.
+
+    Example
+    -------
+    plot_profiles(nimg,L=L[:N:3],rois=[[325,800,425,1000],[325,300,425,500]],vmin=0,vmax=1,labels=['A','B'],cmap='gray')
+    """ 
+    if figsize is None:
+        figsize = [12,5]
+        
+    fig,ax = plt.subplots(1,2,figsize=figsize)
+    
+    ax[0].imshow(x.mean(axis=0),vmin=vmin,vmax=vmax, cmap=cmap)
+    
+    cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
+    if type(rois[0]) is list :
+        for idx,roi in enumerate(rois) :
+            
+            R = patches.Rectangle(xy=(roi[0],roi[1]),width=roi[2]-roi[0],height=roi[3]-roi[1],ec=cycle[idx], fc=cycle[idx],alpha=0.5)
+            ax[0].add_patch(R)
+            
+            if labels is not None :
+                label = labels[idx]
+            else :
+                label = None
+            
+            xmean = x[:,roi[1]:roi[3],roi[0]:roi[2]].mean(axis=(1,2))
+            smoothed = savgol_filter(xmean, window_length=11, polyorder=3)
+            ax[1].plot(L,smoothed,label=label,c=cycle[idx])
+            ax[1].plot(L,xmean,'.',c=cycle[idx],alpha=0.5)
+            ax[1].set_xlabel(xlabel)
+            ax[1].set_ylabel(ylabel)
+
+        if labels is not None :
+            ax[1].legend()
