@@ -140,7 +140,7 @@ def read_fits_meta_data(fname,parlist = []) :
         
     return data
 
-def read_fits_meta_data2(fmask,first,last,parlist = []) :
+def read_fits_meta_data2(fmask,first,last,parlist = [],include_fname=False) :
     '''Reads selected meta data from a series of fits files
     
     Arguments:
@@ -157,11 +157,18 @@ def read_fits_meta_data2(fmask,first,last,parlist = []) :
     
     for par in parlist :
         data[par]= []
+
+    if include_fname :
+        data['filename'] = []
         
     for idx in np.arange(first,last+1) :
-        hdul = fits.open(fmask.format(idx))
+        fname=fmask.format(idx)
+        hdul = fits.open(fname)
         hdul.verify('silentfix')
     
+        if include_fname :
+            data['filename'].append(fname)
+
         for par in parlist :
             value = hdul[0].header[par]
             if isinstance(value,str) and value[0]=='b' :
